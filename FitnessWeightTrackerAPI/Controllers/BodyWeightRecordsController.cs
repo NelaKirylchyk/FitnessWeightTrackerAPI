@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc;
 using FitnessWeightTrackerAPI.Models;
 using FitnessWeightTrackerAPI.Services;
 using FitnessWeightTrackerAPI.Data.DTO;
-using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace FitnessWeightTrackerAPI.Controllers
 {
@@ -33,7 +26,7 @@ namespace FitnessWeightTrackerAPI.Controllers
 
         // GET: api/BodyWeightRecords/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<BodyWeightRecord>> GetBodyWeightRecord(int id)
+        public async Task<ActionResult<BodyWeightRecord>> GetBodyWeightRecords(int id)
         {
             int userId = GetCurrentUserId();
             var bodyWeightRecord = await _bodyWeightService.GetBodyweightRecord(id, userId);
@@ -50,24 +43,32 @@ namespace FitnessWeightTrackerAPI.Controllers
         // POST: api/BodyWeightRecords
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<BodyWeightRecord>> PostBodyWeightRecord(BodyWeightRecordDTO bodyWeightRecord)
+        public async Task<ActionResult<BodyWeightRecord>> PostBodyWeightRecords(BodyWeightRecordDTO bodyWeightRecord)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             int userId = GetCurrentUserId();
             var created = await _bodyWeightService.AddBodyweightRecord(userId, bodyWeightRecord);
 
             if (created == null)
             {
-                return NotFound($"BodyWeghtRecord was not added.");
+                return NotFound("BodyWeghtRecord was not added.");
             }
 
-            return CreatedAtAction("GetBodyWeightRecord", new { id = created.Id }, bodyWeightRecord);
+            return CreatedAtAction("GetBodyWeightRecords", new
+            {
+                id = created.Id
 
+            });
         }
 
         // PUT: api/BodyWeightRecord/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutBodyWeightRecord(int id, BodyWeightRecordDTO bodyWeightRecord)
+        public async Task<IActionResult> PutBodyWeightRecords(int id, BodyWeightRecordDTO bodyWeightRecord)
         {
             var userId = GetCurrentUserId();
             var record = await _bodyWeightService.UpdateBodyweightRecord(id, userId, bodyWeightRecord);
@@ -83,7 +84,7 @@ namespace FitnessWeightTrackerAPI.Controllers
 
         // DELETE: api/BodyWeightRecords/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteBodyWeightRecord(int id)
+        public async Task<IActionResult> DeleteBodyWeightRecords(int id)
         {
             int userId = GetCurrentUserId();
             var isDeleted = await _bodyWeightService.DeleteBodyweightRecord(id, userId);

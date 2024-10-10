@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using FitnessWeightTrackerAPI.Models.CustomValidation;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FitnessWeightTrackerAPI.Models
@@ -12,8 +13,11 @@ namespace FitnessWeightTrackerAPI.Models
         public int UserId { get; set; }
         public User User { get; set; }
         [Required]
+        [Range(0.0, 500.0, ErrorMessage = "Target weight must be between 0 and 500.")]
         public float TargetWeight { get; set; }
         [Required]
-        public DateTime TargetDate { get;set; }
+        [DataType(DataType.Date)]
+        [TargetDateValidation]
+        public DateTime TargetDate { get; set; }
     }
 }

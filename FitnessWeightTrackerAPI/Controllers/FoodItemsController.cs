@@ -7,11 +7,11 @@ namespace FitnessWeightTrackerAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class FoodItemController : ControllerBase
+    public class FoodItemsController : ControllerBase
     {
         private IFoodItemService _foodItemService;
 
-        public FoodItemController(IFoodItemService foodItemService)
+        public FoodItemsController(IFoodItemService foodItemService)
         {
             _foodItemService = foodItemService;
         }
@@ -23,9 +23,9 @@ namespace FitnessWeightTrackerAPI.Controllers
            return await _foodItemService.GetAllFoodItems();
         }
 
-        // GET: api/FoodItem/5
+        // GET: api/FoodItems/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<FoodItem>> GetFoodItem(int id)
+        public async Task<ActionResult<FoodItem>> GetFoodItems(int id)
         {
             var foodItem = await _foodItemService.GetFoodItem(id);
 
@@ -37,10 +37,10 @@ namespace FitnessWeightTrackerAPI.Controllers
             return foodItem;
         }
 
-        // PUT: api/FoodItem/5
+        // PUT: api/FoodItems/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutFoodItem(int id, FoodItemDTO foodItem)
+        public async Task<IActionResult> PutFoodItems(int id, FoodItemDTO foodItem)
         {
             var record = await _foodItemService.UpdateFoodItem(id, foodItem);
 
@@ -53,7 +53,7 @@ namespace FitnessWeightTrackerAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<BodyWeightRecord>> PostFoodItem(FoodItemDTO foodItem)
+        public async Task<ActionResult<BodyWeightRecord>> PostFoodItems(FoodItemDTO foodItem)
         {
             var created = await _foodItemService.AddFoodItem(foodItem);
 
@@ -62,14 +62,14 @@ namespace FitnessWeightTrackerAPI.Controllers
                 return NotFound($"Food item was not added.");
             }
 
-            return CreatedAtAction("GetFoodItem", new { id = created.FoodItemId }, foodItem);
+            return CreatedAtAction("GetFoodItems", new { id = created.Id }, foodItem);
 
         }
 
 
-        // DELETE: api/FoodItem/5
+        // DELETE: api/FoodItems/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteFoodItem(int id)
+        public async Task<IActionResult> DeleteFoodItems(int id)
         {
             var isDeleted = await _foodItemService.DeleteFoodItem(id);
             if (!isDeleted)

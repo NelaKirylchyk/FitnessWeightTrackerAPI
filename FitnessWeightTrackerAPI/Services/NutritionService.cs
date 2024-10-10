@@ -15,7 +15,7 @@ namespace FitnessWeightTrackerAPI.Services
         public async Task<FoodRecord> AddFoodRecord(FoodRecordDTO foodRecord, int userId)
         {
             var userExists = await UserExists(userId);
-            var foodItemExists = _context.FoodItems.Any(x => x.FoodItemId == foodRecord.FoodItemId);
+            var foodItemExists = _context.FoodItems.Any(x => x.Id == foodRecord.FoodItemId);
             FoodRecord? entity = null;
 
             if (userExists && foodItemExists)

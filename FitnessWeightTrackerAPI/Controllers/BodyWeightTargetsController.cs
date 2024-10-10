@@ -24,7 +24,7 @@ namespace FitnessWeightTrackerAPI.Controllers
 
         // GET: api/BodyWeightTargets/5
         [HttpGet]
-        public async Task<ActionResult<BodyWeightTarget>> GetBodyWeightTarget()
+        public async Task<ActionResult<BodyWeightTarget>> GetBodyWeightTargets()
         {
             int userId = GetCurrentUserId();
             var bodyWeightTarget = await _bodyWeightService.GetUserBodyweightTarget(userId);
@@ -40,7 +40,7 @@ namespace FitnessWeightTrackerAPI.Controllers
         // POST: api/BodyWeightTargets
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<BodyWeightTarget>> PostBodyWeightTarget(BodyWeightTargetDTO bodyWeightTarget)
+        public async Task<ActionResult<BodyWeightTarget>> PostBodyWeightTargets(BodyWeightTargetDTO bodyWeightTarget)
         {
             var userId = GetCurrentUserId();
             var entity = await _bodyWeightService.AddBodyweightTarget(userId, bodyWeightTarget);
@@ -50,13 +50,13 @@ namespace FitnessWeightTrackerAPI.Controllers
                 return NotFound($"BodyWeightTarget with user Id = {userId} was not added");
             }
 
-            return CreatedAtAction("GetBodyWeightTarget", new { id = entity.Id }, bodyWeightTarget);
+            return CreatedAtAction("GetBodyWeightTargets", new { id = entity.Id }, bodyWeightTarget);
         }
 
-        // PUT: api/BodyWeightTarget/5
+        // PUT: api/BodyWeightTargets/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutBodyWeightTarget(int id, BodyWeightTargetDTO bodyWeightTarget)
+        public async Task<IActionResult> PutBodyWeightTargets(int id, BodyWeightTargetDTO bodyWeightTarget)
         {
             var userId = GetCurrentUserId();
             var record = await _bodyWeightService.UpdateBodyweightTarget(id, userId, bodyWeightTarget);
@@ -71,7 +71,7 @@ namespace FitnessWeightTrackerAPI.Controllers
 
         // DELETE: api/BodyWeightTargets/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteBodyWeightTarget(int id)
+        public async Task<IActionResult> DeleteBodyWeightTargets(int id)
         {
             var userId = GetCurrentUserId();
             var isDeleted = await _bodyWeightService.DeleteBodyweightTarget(id, userId);

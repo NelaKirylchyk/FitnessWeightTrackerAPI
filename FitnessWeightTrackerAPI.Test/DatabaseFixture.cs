@@ -37,7 +37,7 @@ namespace FitnessWeightTrackerAPI.Test
                 {
                     Name = $"User{i}",
                     Surname = $"Surname{i}",
-                    Gender = "M"
+                    Gender = random.Next(0, 2)
                 };
 
                 context.Users.Add(user);

@@ -39,7 +39,7 @@ namespace FitnessWeightTrackerAPI.Services
 
         public async Task<bool> DeleteFoodItem(int id)
         {
-            var existingFoodItem = await _context.FoodItems.FirstOrDefaultAsync(r => r.FoodItemId == id);
+            var existingFoodItem = await _context.FoodItems.FirstOrDefaultAsync(r => r.Id == id);
             if (existingFoodItem != null)
             {
                 _context.FoodItems.Remove(existingFoodItem);
@@ -56,13 +56,13 @@ namespace FitnessWeightTrackerAPI.Services
 
         public async Task<FoodItem> GetFoodItem(int id)
         {
-            var foodItem = await _context.FoodItems.FirstOrDefaultAsync(r => r.FoodItemId == id);
+            var foodItem = await _context.FoodItems.FirstOrDefaultAsync(r => r.Id == id);
             return foodItem;
         }
 
         public async Task<FoodItem> UpdateFoodItem(int id, FoodItemDTO record)
         {
-            var foodItem = await _context.FoodItems.FirstOrDefaultAsync(t => t.FoodItemId == id);
+            var foodItem = await _context.FoodItems.FirstOrDefaultAsync(t => t.Id == id);
 
             if (foodItem != null)
             {

@@ -4,6 +4,7 @@ using FitnessWeightTrackerAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FitnessWeightTrackerAPI.Migrations
 {
     [DbContext(typeof(FitnessWeightTrackerDbContext))]
-    partial class FitnessWeightTrackerDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241010143802_ValidationUpdates")]
+    partial class ValidationUpdates
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -22,7 +25,7 @@ namespace FitnessWeightTrackerAPI.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("FitnessWeightTrackerAPI.Models.BodyWeightRecord", b =>
+            modelBuilder.Entity("FitnessWeightTrackerAPI.Models.BodyWeightRecords", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -46,7 +49,7 @@ namespace FitnessWeightTrackerAPI.Migrations
                     b.ToTable("BodyWeightRecords");
                 });
 
-            modelBuilder.Entity("FitnessWeightTrackerAPI.Models.BodyWeightTarget", b =>
+            modelBuilder.Entity("FitnessWeightTrackerAPI.Models.BodyWeightTargets", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -70,7 +73,7 @@ namespace FitnessWeightTrackerAPI.Migrations
                     b.ToTable("BodyWeightTargets");
                 });
 
-            modelBuilder.Entity("FitnessWeightTrackerAPI.Models.FoodItem", b =>
+            modelBuilder.Entity("FitnessWeightTrackerAPI.Models.FoodItems", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -103,7 +106,7 @@ namespace FitnessWeightTrackerAPI.Migrations
                     b.ToTable("FoodItems");
                 });
 
-            modelBuilder.Entity("FitnessWeightTrackerAPI.Models.FoodRecord", b =>
+            modelBuilder.Entity("FitnessWeightTrackerAPI.Models.FoodRecords", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -132,7 +135,7 @@ namespace FitnessWeightTrackerAPI.Migrations
                     b.ToTable("FoodRecords");
                 });
 
-            modelBuilder.Entity("FitnessWeightTrackerAPI.Models.NutritionTarget", b =>
+            modelBuilder.Entity("FitnessWeightTrackerAPI.Models.NutritionTargets", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -162,7 +165,7 @@ namespace FitnessWeightTrackerAPI.Migrations
                     b.ToTable("NutritionTargets");
                 });
 
-            modelBuilder.Entity("FitnessWeightTrackerAPI.Models.User", b =>
+            modelBuilder.Entity("FitnessWeightTrackerAPI.Models.Users", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -195,16 +198,16 @@ namespace FitnessWeightTrackerAPI.Migrations
                         new
                         {
                             Id = 1,
-                            BirthDate = new DateTime(2024, 10, 10, 20, 20, 4, 855, DateTimeKind.Utc).AddTicks(2806),
+                            BirthDate = new DateTime(2024, 10, 10, 14, 38, 1, 867, DateTimeKind.Utc).AddTicks(1722),
                             Gender = 0,
                             Name = "New temp user name",
                             Surname = "New temp user surname"
                         });
                 });
 
-            modelBuilder.Entity("FitnessWeightTrackerAPI.Models.BodyWeightRecord", b =>
+            modelBuilder.Entity("FitnessWeightTrackerAPI.Models.BodyWeightRecords", b =>
                 {
-                    b.HasOne("FitnessWeightTrackerAPI.Models.User", "User")
+                    b.HasOne("FitnessWeightTrackerAPI.Models.Users", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -213,9 +216,9 @@ namespace FitnessWeightTrackerAPI.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("FitnessWeightTrackerAPI.Models.BodyWeightTarget", b =>
+            modelBuilder.Entity("FitnessWeightTrackerAPI.Models.BodyWeightTargets", b =>
                 {
-                    b.HasOne("FitnessWeightTrackerAPI.Models.User", "User")
+                    b.HasOne("FitnessWeightTrackerAPI.Models.Users", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -224,15 +227,15 @@ namespace FitnessWeightTrackerAPI.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("FitnessWeightTrackerAPI.Models.FoodRecord", b =>
+            modelBuilder.Entity("FitnessWeightTrackerAPI.Models.FoodRecords", b =>
                 {
-                    b.HasOne("FitnessWeightTrackerAPI.Models.FoodItem", "FoodItem")
+                    b.HasOne("FitnessWeightTrackerAPI.Models.FoodItems", "FoodItem")
                         .WithMany()
                         .HasForeignKey("FoodItemId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("FitnessWeightTrackerAPI.Models.User", "User")
+                    b.HasOne("FitnessWeightTrackerAPI.Models.Users", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -243,9 +246,9 @@ namespace FitnessWeightTrackerAPI.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("FitnessWeightTrackerAPI.Models.NutritionTarget", b =>
+            modelBuilder.Entity("FitnessWeightTrackerAPI.Models.NutritionTargets", b =>
                 {
-                    b.HasOne("FitnessWeightTrackerAPI.Models.User", "User")
+                    b.HasOne("FitnessWeightTrackerAPI.Models.Users", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)

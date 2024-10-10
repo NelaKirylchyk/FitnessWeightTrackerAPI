@@ -1,7 +1,9 @@
 ﻿using FitnessWeightTrackerAPI.Data;
 using FitnessWeightTrackerAPI.Data.DTO;
 using FitnessWeightTrackerAPI.Models;
+using FitnessWeightTrackerAPI.Services.Helpers;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 
 namespace FitnessWeightTrackerAPI.Services
 {
@@ -92,6 +94,7 @@ namespace FitnessWeightTrackerAPI.Services
                     Date = DateTime.UtcNow,
                     Weight = record.Weight
                 };
+
                 _context.BodyWeightRecords.Add(entity);
                 await _context.SaveChangesAsync();
             }
