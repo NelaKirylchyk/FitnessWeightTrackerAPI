@@ -18,7 +18,7 @@ builder.Services.AddControllers(options => {
 
 builder.Services.AddControllers(options =>
 {
-    options.Filters.Add<ExceptionFilter>();
+    options.Filters.Add<ValidationExceptionFilter>();
 });
 
 
