@@ -1,4 +1,5 @@
 using FitnessWeightTrackerAPI.Data;
+using FitnessWeightTrackerAPI.Filters;
 using FitnessWeightTrackerAPI.Models;
 using FitnessWeightTrackerAPI.Services;
 using Microsoft.AspNetCore.Identity;
@@ -10,6 +11,16 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 builder.Services.AddControllers();
+
+builder.Services.AddControllers(options => {
+    options.Filters.Add<ValidateModelAttribute>();
+});
+
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<ExceptionFilter>();
+});
+
 
 //builder.Services.AddDbContext<FitnessWeightTrackerDbContext>(opt => opt.UseInMemoryDatabase("FitnessTracker"));
 

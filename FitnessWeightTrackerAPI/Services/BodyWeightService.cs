@@ -2,8 +2,10 @@
 using FitnessWeightTrackerAPI.Data.DTO;
 using FitnessWeightTrackerAPI.Models;
 using FitnessWeightTrackerAPI.Services.Helpers;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
+using System;
 
 namespace FitnessWeightTrackerAPI.Services
 {
@@ -88,12 +90,18 @@ namespace FitnessWeightTrackerAPI.Services
 
             if (userExists)
             {
-               entity = new BodyWeightRecord()
+                entity = new BodyWeightRecord()
                 {
                     UserId = userId,
                     Date = DateTime.UtcNow,
                     Weight = record.Weight
                 };
+
+                // Validate Entity
+                if (!ValidationHelper.TryValidateObject(entity, out var validationResults))
+                {
+                    throw new ValidationException(validationResults.First(), null, null);
+                }
 
                 _context.BodyWeightRecords.Add(entity);
                 await _context.SaveChangesAsync();

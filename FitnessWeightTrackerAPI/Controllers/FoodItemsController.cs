@@ -2,9 +2,11 @@
 using FitnessWeightTrackerAPI.Models;
 using FitnessWeightTrackerAPI.Data.DTO;
 using FitnessWeightTrackerAPI.Services;
+using FitnessWeightTrackerAPI.Filters;
 
 namespace FitnessWeightTrackerAPI.Controllers
 {
+    [ValidateModel]
     [Route("api/[controller]")]
     [ApiController]
     public class FoodItemsController : ControllerBase

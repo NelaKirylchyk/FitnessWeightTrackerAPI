@@ -2,9 +2,11 @@
 using FitnessWeightTrackerAPI.Models;
 using FitnessWeightTrackerAPI.Services;
 using FitnessWeightTrackerAPI.Data.DTO;
+using FitnessWeightTrackerAPI.Filters;
 
 namespace FitnessWeightTrackerAPI.Controllers
 {
+    [ValidateModel]
     [Route("api/[controller]")]
     [ApiController]
     public class BodyWeightRecordsController : ControllerBase
@@ -45,11 +47,6 @@ namespace FitnessWeightTrackerAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<BodyWeightRecord>> PostBodyWeightRecords(BodyWeightRecordDTO bodyWeightRecord)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             int userId = GetCurrentUserId();
             var created = await _bodyWeightService.AddBodyweightRecord(userId, bodyWeightRecord);
 
@@ -60,9 +57,9 @@ namespace FitnessWeightTrackerAPI.Controllers
 
             return CreatedAtAction("GetBodyWeightRecords", new
             {
-                id = created.Id
+                id = created.Id,
 
-            });
+            }, bodyWeightRecord);
         }
 
         // PUT: api/BodyWeightRecord/5

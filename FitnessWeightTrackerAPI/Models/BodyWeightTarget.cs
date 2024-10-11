@@ -13,7 +13,7 @@ namespace FitnessWeightTrackerAPI.Models
         public int UserId { get; set; }
         public User User { get; set; }
         [Required]
-        [Range(0.0, 500.0, ErrorMessage = "Target weight must be between 0 and 500.")]
+        [Range(0.01, 500.0, ErrorMessage = "Target weight must be between 0.01 and 500.")]
         public float TargetWeight { get; set; }
         [Required]
         [DataType(DataType.Date)]
