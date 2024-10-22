@@ -29,7 +29,10 @@ namespace FitnessWeightTrackerAPI.Data
                     Name = "New temp user name",
                     BirthDate = DateTime.UtcNow,
                     Gender = 0, 
-                    Surname = "New temp user surname"});
+                    Surname = "New temp user surname",
+                    UserName = "UserName",
+                    Email = "name.surname@gmail.com",
+                    PasswordHash = "hash"});
         }
 
     }

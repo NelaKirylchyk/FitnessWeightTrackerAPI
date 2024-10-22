@@ -18,5 +18,12 @@ namespace FitnessWeightTrackerAPI.Models
         [Required]
         public DateTime BirthDate { get; set; }
 
+        [Required]
+        public string UserName { get; set; }
+        [Required]
+        public string Email { get; set; }
+        [Required]
+        public string PasswordHash { get; set; }
+
     }
 }
