@@ -1,6 +1,8 @@
-﻿using FitnessWeightTrackerAPI.Data;
+﻿using FitnessWeightTrackerAPI.CustomExceptions;
+using FitnessWeightTrackerAPI.Data;
 using FitnessWeightTrackerAPI.Data.DTO;
 using FitnessWeightTrackerAPI.Models;
+using FitnessWeightTrackerAPI.Services.Helpers;
 using Microsoft.EntityFrameworkCore;
 
 namespace FitnessWeightTrackerAPI.Services
@@ -27,6 +29,13 @@ namespace FitnessWeightTrackerAPI.Services
                     FoodItemId = foodRecord.FoodItemId,
                     Quantity = foodRecord.Quantity
                 };
+
+                // Validate  entity
+                if (!ValidationHelper.TryValidateObject(entity, out var validationResults))
+                {
+                    throw new CustomValidationException(validationResults);
+                }
+
                 _context.FoodRecords.Add(entity);
                 await _context.SaveChangesAsync();
             }
@@ -51,6 +60,12 @@ namespace FitnessWeightTrackerAPI.Services
                     DailyFat = target.DailyFat,
                     DailyProtein = target.DailyProtein
                 };
+
+                // Validate entity
+                if (!ValidationHelper.TryValidateObject(entity, out var validationResults))
+                {
+                    throw new CustomValidationException(validationResults);
+                }
 
                 _context.NutritionTargets.Add(entity);
                 await _context.SaveChangesAsync();
@@ -134,9 +149,14 @@ namespace FitnessWeightTrackerAPI.Services
                 foodRecord.ConsumptionDate = record.ConsumptionDate;
                 foodRecord.Quantity = record.Quantity;
                 foodRecord.FoodItemId = record.FoodItemId;
-                _context.Entry(foodRecord).Property("ConsumptionDate").IsModified = true;
-                _context.Entry(foodRecord).Property("Quantity").IsModified = true;
-                _context.Entry(foodRecord).Property("FoodItemId").IsModified = true;
+
+                // Validate updated entity
+                if (!ValidationHelper.TryValidateObject(foodRecord, out var validationResults))
+                {
+                    throw new CustomValidationException(validationResults);
+                }
+
+                _context.FoodRecords.Update(foodRecord);
                 await _context.SaveChangesAsync();
             }
             return foodRecord;
@@ -154,10 +174,14 @@ namespace FitnessWeightTrackerAPI.Services
                 nutritionTarget.DailyFat = target.DailyFat;
                 nutritionTarget.DailyCarbonohydrates = target.DailyCarbonohydrates;
                 nutritionTarget.DailyCalories = target.DailyCalories;
-                _context.Entry(nutritionTarget).Property("DailyProtein").IsModified = true;
-                _context.Entry(nutritionTarget).Property("DailyFat").IsModified = true;
-                _context.Entry(nutritionTarget).Property("DailyCarbonohydrates").IsModified = true;
-                _context.Entry(nutritionTarget).Property("DailyCalories").IsModified = true;
+
+                // Validate updated entity
+                if (!ValidationHelper.TryValidateObject(nutritionTarget, out var validationResults))
+                {
+                    throw new CustomValidationException(validationResults);
+                }
+
+                _context.NutritionTargets.Update(nutritionTarget);
                 await _context.SaveChangesAsync();
             }
             return nutritionTarget;

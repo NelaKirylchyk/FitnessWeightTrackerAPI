@@ -58,7 +58,7 @@ namespace FitnessWeightTrackerAPI.Controllers
             return CreatedAtAction("GetBodyWeightRecords", new
             {
                 id = created.Id,
-
+                
             }, bodyWeightRecord);
         }
 

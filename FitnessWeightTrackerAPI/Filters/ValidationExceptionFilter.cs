@@ -20,6 +20,15 @@ namespace FitnessWeightTrackerAPI.Filters
                 context.Result = new BadRequestObjectResult(result);
                 context.ExceptionHandled = true;
             }
+            else
+            {
+                // Handle other types of exceptions here
+                context.Result = new ObjectResult("An unexpected error occurred.")
+                {
+                    StatusCode = 500
+                };
+                context.ExceptionHandled = true;
+            }
         }
     }
 }

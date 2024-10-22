@@ -1,6 +1,8 @@
-﻿using FitnessWeightTrackerAPI.Data;
+﻿using FitnessWeightTrackerAPI.CustomExceptions;
+using FitnessWeightTrackerAPI.Data;
 using FitnessWeightTrackerAPI.Data.DTO;
 using FitnessWeightTrackerAPI.Models;
+using FitnessWeightTrackerAPI.Services.Helpers;
 using Microsoft.EntityFrameworkCore;
 
 namespace FitnessWeightTrackerAPI.Services
@@ -15,7 +17,7 @@ namespace FitnessWeightTrackerAPI.Services
         }
         public async Task<FoodItem> AddFoodItem(FoodItemDTO foodItem)
         {
-            FoodItem? entity = new FoodItem()
+            var entity = new FoodItem()
             {
                 Calories = foodItem.Calories,
                 Fat = foodItem.Fat,
@@ -24,6 +26,13 @@ namespace FitnessWeightTrackerAPI.Services
                 Protein = foodItem.Protein,
                 ServingSize = foodItem.ServingSize
             };
+
+            // Validate Entity
+            if (!ValidationHelper.TryValidateObject(entity, out var validationResults))
+            {
+                throw new CustomValidationException(validationResults);
+            }
+
             _context.FoodItems.Add(entity);
             await _context.SaveChangesAsync();
 
@@ -73,12 +82,13 @@ namespace FitnessWeightTrackerAPI.Services
                 foodItem.Fat = record.Fat;
                 foodItem.ServingSize = record.ServingSize;
 
-                _context.Entry(foodItem).Property("Protein").IsModified = true;
-                _context.Entry(foodItem).Property("Name").IsModified = true;
-                _context.Entry(foodItem).Property("Calories").IsModified = true;
-                _context.Entry(foodItem).Property("Carbohydrates").IsModified = true;
-                _context.Entry(foodItem).Property("Fat").IsModified = true;
-                _context.Entry(foodItem).Property("ServingSize").IsModified = true;
+                // Validate updated entity
+                if (!ValidationHelper.TryValidateObject(foodItem, out var validationResults))
+                {
+                    throw new CustomValidationException(validationResults);
+                }
+
+                _context.FoodItems.Update(foodItem);
                 await _context.SaveChangesAsync();
             }
             return foodItem;
