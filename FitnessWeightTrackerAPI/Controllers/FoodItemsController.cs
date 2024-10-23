@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using FitnessWeightTrackerAPI.Models;
 using FitnessWeightTrackerAPI.Data.DTO;
-using FitnessWeightTrackerAPI.Services;
 using FitnessWeightTrackerAPI.Filters;
+using FitnessWeightTrackerAPI.Services.Interfaces;
 
 namespace FitnessWeightTrackerAPI.Controllers
 {

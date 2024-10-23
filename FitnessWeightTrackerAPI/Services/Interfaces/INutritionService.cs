@@ -1,7 +1,7 @@
 ﻿using FitnessWeightTrackerAPI.Data.DTO;
 using FitnessWeightTrackerAPI.Models;
 
-namespace FitnessWeightTrackerAPI.Services
+namespace FitnessWeightTrackerAPI.Services.Interfaces
 {
     public interface INutritionService
     {

@@ -2,6 +2,7 @@ using FitnessWeightTrackerAPI.Data;
 using FitnessWeightTrackerAPI.Filters;
 using FitnessWeightTrackerAPI.Models;
 using FitnessWeightTrackerAPI.Services;
+using FitnessWeightTrackerAPI.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -29,6 +30,7 @@ builder.Services.AddDbContext<FitnessWeightTrackerDbContext>(opt => opt.UseSqlSe
 builder.Services.AddTransient<IBodyWeightService, BodyWeightService>();
 builder.Services.AddTransient<IFoodItemService, FoodItemService>();
 builder.Services.AddTransient<INutritionService, NutritionService>();
+builder.Services.AddTransient<IUserService, UserService>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

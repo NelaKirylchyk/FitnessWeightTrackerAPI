@@ -3,6 +3,7 @@ using FitnessWeightTrackerAPI.Data;
 using FitnessWeightTrackerAPI.Data.DTO;
 using FitnessWeightTrackerAPI.Models;
 using FitnessWeightTrackerAPI.Services.Helpers;
+using FitnessWeightTrackerAPI.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace FitnessWeightTrackerAPI.Services

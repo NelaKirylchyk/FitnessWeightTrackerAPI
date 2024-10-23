@@ -2,7 +2,7 @@
 using FitnessWeightTrackerAPI.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace FitnessWeightTrackerAPI.Services
+namespace FitnessWeightTrackerAPI.Services.Interfaces
 {
     public interface IBodyWeightService
     {
@@ -11,7 +11,7 @@ namespace FitnessWeightTrackerAPI.Services
         public Task<BodyWeightRecord> AddBodyweightRecord(int userId, BodyWeightRecordDTO record);
         public Task DeleteAllBodyweightRecords(int userId);
         public Task<bool> DeleteBodyweightRecord(int id, int userId);
-        public Task<BodyWeightRecord> UpdateBodyweightRecord(int id, int userId,  BodyWeightRecordDTO record);
+        public Task<BodyWeightRecord> UpdateBodyweightRecord(int id, int userId, BodyWeightRecordDTO record);
 
         public Task<BodyWeightTarget> UpdateBodyweightTarget(int id, int userId, BodyWeightTargetDTO targetWeight);
 

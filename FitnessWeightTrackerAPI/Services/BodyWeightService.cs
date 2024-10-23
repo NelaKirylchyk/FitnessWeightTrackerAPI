@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System;
 using FitnessWeightTrackerAPI.CustomExceptions;
+using FitnessWeightTrackerAPI.Services.Interfaces;
 
 namespace FitnessWeightTrackerAPI.Services
 {
