@@ -9,6 +9,7 @@ using FitnessWeightTrackerAPI.Models;
 using FitnessWeightTrackerAPI.Data.DTO;
 using FitnessWeightTrackerAPI.Filters;
 using FitnessWeightTrackerAPI.Services.Interfaces;
+using FitnessWeightTrackerAPI.Services;
 
 namespace FitnessWeightTrackerAPI.Controllers
 {
@@ -18,18 +19,26 @@ namespace FitnessWeightTrackerAPI.Controllers
     public class BodyWeightTargetsController : ControllerBase
     {
         private IBodyWeightService _bodyWeightService;
+        private IUserService _userService;
 
-        public BodyWeightTargetsController(IBodyWeightService bodyWeightService)
+        public BodyWeightTargetsController(IBodyWeightService bodyWeightService, IUserService userService)
         {
             _bodyWeightService = bodyWeightService;
+            _userService = userService;
         }
 
         // GET: api/BodyWeightTargets/5
         [HttpGet]
         public async Task<ActionResult<BodyWeightTarget>> GetBodyWeightTargets()
         {
-            int userId = GetCurrentUserId();
-            var bodyWeightTarget = await _bodyWeightService.GetUserBodyweightTarget(userId);
+            var userId = _userService.GetUserIdFromAuth(this);
+
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+
+            var bodyWeightTarget = await _bodyWeightService.GetUserBodyweightTarget((int)userId);
 
             if (bodyWeightTarget == null)
             {
@@ -44,8 +53,13 @@ namespace FitnessWeightTrackerAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<BodyWeightTarget>> PostBodyWeightTargets(BodyWeightTargetDTO bodyWeightTarget)
         {
-            var userId = GetCurrentUserId();
-            var entity = await _bodyWeightService.AddBodyweightTarget(userId, bodyWeightTarget);
+            var userId = _userService.GetUserIdFromAuth(this);
+
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+            var entity = await _bodyWeightService.AddBodyweightTarget((int)userId, bodyWeightTarget);
 
             if (entity == null)
             {
@@ -60,8 +74,13 @@ namespace FitnessWeightTrackerAPI.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutBodyWeightTargets(int id, BodyWeightTargetDTO bodyWeightTarget)
         {
-            var userId = GetCurrentUserId();
-            var record = await _bodyWeightService.UpdateBodyweightTarget(id, userId, bodyWeightTarget);
+            var userId = _userService.GetUserIdFromAuth(this);
+
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+            var record = await _bodyWeightService.UpdateBodyweightTarget(id, (int)userId, bodyWeightTarget);
 
             if (record == null)
             {
@@ -75,18 +94,18 @@ namespace FitnessWeightTrackerAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteBodyWeightTargets(int id)
         {
-            var userId = GetCurrentUserId();
-            var isDeleted = await _bodyWeightService.DeleteBodyweightTarget(id, userId);
+            var userId = _userService.GetUserIdFromAuth(this);
+
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+            var isDeleted = await _bodyWeightService.DeleteBodyweightTarget(id, (int)userId);
             if (!isDeleted)
             {
                 return NotFound();
             }
             return NoContent();
-        }
-
-        private int GetCurrentUserId()
-        {
-            return 1; // temporary user Id
         }
     }
 }

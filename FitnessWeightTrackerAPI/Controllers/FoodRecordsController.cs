@@ -19,26 +19,38 @@ namespace FitnessWeightTrackerAPI.Controllers
     public class FoodRecordsController : ControllerBase
     {
         private INutritionService _nutritionService;
+        private IUserService _userService;
 
-        public FoodRecordsController(INutritionService nutritionService)
+        public FoodRecordsController(INutritionService nutritionService, IUserService userService)
         {
             _nutritionService = nutritionService;
+            _userService = userService;
         }
 
         // GET: api/FoodRecords
         [HttpGet]
         public async Task<ActionResult<IEnumerable<FoodRecord>>> GetFoodRecords()
         {
-            int userId = GetCurrentUserId();
-            return await _nutritionService.GetAllFoodRecords(userId);
+            var userId = _userService.GetUserIdFromAuth(this);
+
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+            return await _nutritionService.GetAllFoodRecords((int)userId);
         }
 
         // GET: api/FoodRecords/5
         [HttpGet("{id}")]
         public async Task<ActionResult<FoodRecord>> GetFoodRecords(int id)
         {
-            int userId = GetCurrentUserId();
-            var foodRecord = await _nutritionService.GetFoodRecord(id, userId);
+            var userId = _userService.GetUserIdFromAuth(this);
+
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+            var foodRecord = await _nutritionService.GetFoodRecord(id, (int)userId);
 
             if (foodRecord == null)
             {
@@ -53,8 +65,13 @@ namespace FitnessWeightTrackerAPI.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutFoodRecords(int id, FoodRecordDTO foodRecord)
         {
-            var userId = GetCurrentUserId();
-            var record = await _nutritionService.UpdateFoodRecord(id, userId, foodRecord);
+            var userId = _userService.GetUserIdFromAuth(this);
+
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+            var record = await _nutritionService.UpdateFoodRecord(id, (int)userId, foodRecord);
 
             if (record == null)
             {
@@ -69,8 +86,13 @@ namespace FitnessWeightTrackerAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<FoodRecord>> PostFoodRecords(FoodRecordDTO foodRecord)
         {
-            int userId = GetCurrentUserId();
-            var created = await _nutritionService.AddFoodRecord(foodRecord, userId);
+            var userId = _userService.GetUserIdFromAuth(this);
+
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+            var created = await _nutritionService.AddFoodRecord(foodRecord, (int)userId);
 
             if (created == null)
             {
@@ -84,18 +106,18 @@ namespace FitnessWeightTrackerAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteFoodRecords(int id)
         {
-            int userId = GetCurrentUserId();
-            var isDeleted = await _nutritionService.DeleteFoodRecord(id, userId);
+            var userId = _userService.GetUserIdFromAuth(this);
+
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+            var isDeleted = await _nutritionService.DeleteFoodRecord(id, (int)userId);
             if (!isDeleted)
             {
                 return NotFound();
             }
             return NoContent();
-        }
-
-        private int GetCurrentUserId()
-        {
-            return 1; // temporary user Id
         }
     }
 }
