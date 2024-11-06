@@ -3,12 +3,15 @@ using FitnessWeightTrackerAPI.Models;
 using FitnessWeightTrackerAPI.Data.DTO;
 using FitnessWeightTrackerAPI.Filters;
 using FitnessWeightTrackerAPI.Services.Interfaces;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 
 namespace FitnessWeightTrackerAPI.Controllers
 {
     [ValidateModel]
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class FoodItemsController : ControllerBase
     {
         private IFoodItemService _foodItemService;

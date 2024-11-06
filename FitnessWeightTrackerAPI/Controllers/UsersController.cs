@@ -2,7 +2,8 @@
 using FitnessWeightTrackerAPI.Models;
 using FitnessWeightTrackerAPI.Services.Interfaces;
 using FitnessWeightTrackerAPI.Data.DTO;
-using FitnessWeightTrackerAPI.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace FitnessWeightTrackerAPI.Controllers
 {
@@ -20,6 +21,7 @@ namespace FitnessWeightTrackerAPI.Controllers
 
         // GET: api/Users/5
         [HttpGet("{id}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<ActionResult<User>> GetUsers(int id)
         {
             var user = await _userService.GetUserByIdAsync(id);
@@ -32,6 +34,7 @@ namespace FitnessWeightTrackerAPI.Controllers
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public async Task<ActionResult<User>> LoginUsers(UserLoginDTO login)
         {
             User user = await _userService.LoginUserAsync(login);
@@ -46,6 +49,7 @@ namespace FitnessWeightTrackerAPI.Controllers
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public async Task<ActionResult<User>> PostUsers(RegistrationUserDTO user)
         {
             var registeredUser = await _userService.RegisterUserAsync(user);
@@ -59,6 +63,7 @@ namespace FitnessWeightTrackerAPI.Controllers
 
         // DELETE: api/Users/5
         [HttpDelete("{id}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> DeleteUsers(int id)
         {
             var isDeleted = await _userService.DeleteUserAsync(id);
@@ -68,6 +73,5 @@ namespace FitnessWeightTrackerAPI.Controllers
             }
             return NoContent();
         }
-
     }
 }

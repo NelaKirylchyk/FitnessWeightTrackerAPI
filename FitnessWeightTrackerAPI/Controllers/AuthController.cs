@@ -17,7 +17,6 @@ using static System.Net.WebRequestMethods;
 
 namespace FitnessWeightTrackerAPI.Controllers
 {
-    //[ValidateModel]
     [Route("[controller]")]
     [ApiController]
     [AllowAnonymous]
@@ -39,7 +38,6 @@ namespace FitnessWeightTrackerAPI.Controllers
             var properties = new AuthenticationProperties { RedirectUri = $"https://localhost:7231{redirectUrl}" };
 
             return Challenge(properties, GoogleDefaults.AuthenticationScheme);
-            //return Challenge(properties, "Google");
         }
 
         [HttpGet("google-response")]
