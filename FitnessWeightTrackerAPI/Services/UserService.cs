@@ -149,34 +149,6 @@ namespace FitnessWeightTrackerAPI.Services
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-        public int? GetUserIdFromAuth(ControllerBase controller)
-        {
-            string? token = controller.HttpContext.Request.Headers["Authorization"].ToString();
-
-            return GetUserIdFromJWTToken(token.Replace("Bearer ", ""));
-        }
-
-        private int? GetUserIdFromJWTToken(string token)
-        {
-            if (string.IsNullOrEmpty(token))
-                return null;
-            try
-            {
-                var handler = new JwtSecurityTokenHandler();
-
-                var claimsPrincipal = handler.ValidateToken(token, _tokenValidationParameters, out var validatedToken);
-
-                var jwtToken = (JwtSecurityToken)validatedToken;
-
-                string userId = jwtToken.Claims.First(c => c.Type == JwtRegisteredClaimNames.Sub).Value;
-
-                return int.TryParse(userId, out int id) ? id : null;
-            }
-            catch  // On ivalid token
-            {
-                return null;
-            }
-        }
         private string GenerateHashedPassword(string password)
         {
             string hashedPassword = string.Empty;

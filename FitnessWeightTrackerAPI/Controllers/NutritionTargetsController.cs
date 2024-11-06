@@ -3,7 +3,7 @@ using FitnessWeightTrackerAPI.Models;
 using FitnessWeightTrackerAPI.Data.DTO;
 using FitnessWeightTrackerAPI.Filters;
 using FitnessWeightTrackerAPI.Services.Interfaces;
-using FitnessWeightTrackerAPI.Services;
+using System.Security.Claims;
 
 namespace FitnessWeightTrackerAPI.Controllers
 {
@@ -13,25 +13,24 @@ namespace FitnessWeightTrackerAPI.Controllers
     public class NutritionTargetsController : ControllerBase
     {
         private INutritionService _nutritionService;
-        private IUserService _userService;
 
-        public NutritionTargetsController(INutritionService nutritionService, IUserService userService)
+        public NutritionTargetsController(INutritionService nutritionService)
         {
             _nutritionService = nutritionService;
-            _userService = userService;
         }
 
         // GET: api/NutritionTargets/5
         [HttpGet]
         public async Task<ActionResult<NutritionTarget>> GetNutritionTargets()
         {
-            var userId = _userService.GetUserIdFromAuth(this);
-
-            if (userId == null)
+            var userIdClaim = this.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
             {
                 return Unauthorized();
             }
-            return await _nutritionService.GetNutritionTarget((int)userId);
+
+            var userId = int.Parse(userIdClaim.Value);
+            return await _nutritionService.GetNutritionTarget(userId);
         }
 
         // POST: api/NutritionTargets
@@ -39,13 +38,14 @@ namespace FitnessWeightTrackerAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<NutritionTarget>> PostNutritionTargets(NutritionTargetDTO nutriotionTarget)
         {
-            var userId = _userService.GetUserIdFromAuth(this);
-
-            if (userId == null)
+            var userIdClaim = this.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
             {
                 return Unauthorized();
             }
-            var entity = await _nutritionService.AddNutritionTarget((int)userId, nutriotionTarget);
+
+            var userId = int.Parse(userIdClaim.Value);
+            var entity = await _nutritionService.AddNutritionTarget(userId, nutriotionTarget);
 
             if (entity == null)
             {
@@ -60,13 +60,14 @@ namespace FitnessWeightTrackerAPI.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutNutritionTargets(int id, NutritionTargetDTO nutriotionTarget)
         {
-            var userId = _userService.GetUserIdFromAuth(this);
-
-            if (userId == null)
+            var userIdClaim = this.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
             {
                 return Unauthorized();
             }
-            var target = await _nutritionService.UpdateNutritionTarget(id, (int)userId, nutriotionTarget);
+
+            var userId = int.Parse(userIdClaim.Value);
+            var target = await _nutritionService.UpdateNutritionTarget(id, userId, nutriotionTarget);
 
             if (target == null)
             {
@@ -80,13 +81,14 @@ namespace FitnessWeightTrackerAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteNutritionTargets(int id)
         {
-            var userId = _userService.GetUserIdFromAuth(this);
-
-            if (userId == null)
+            var userIdClaim = this.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
             {
                 return Unauthorized();
             }
-            var isDeleted = await _nutritionService.DeleteNutritionTarget(id, (int)userId);
+
+            var userId = int.Parse(userIdClaim.Value);
+            var isDeleted = await _nutritionService.DeleteNutritionTarget(id, userId);
             if (!isDeleted)
             {
                 return NotFound();

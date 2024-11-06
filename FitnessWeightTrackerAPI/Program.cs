@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Configuration;
@@ -17,18 +18,17 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
-//builder.Services.AddCors(options =>
-//{
-//    options.AddPolicy(name: MyAllowSpecificOrigins,
-//                      policy =>
-//                      {
-//                          policy.WithOrigins("https://localhost:7231",
-//                                              "http://localhost:5000",
-//                                              "http://localhost:3000",
-//                                              "https://accounts.google.com");
-//                      });
-//});
+var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: MyAllowSpecificOrigins,
+        policy =>
+        {
+            policy.WithOrigins("https://localhost:7231")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+        });
+});
 
 builder.Services.AddControllers();
 
@@ -51,11 +51,12 @@ builder.Services.AddDbContext<FitnessWeightTrackerDbContext>(opt => opt.UseSqlSe
 //Add services to the container.
 builder.Services.AddAuthentication(options =>
 {
-    options.DefaultScheme = "Cookies";
-options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme; // This can be changed based on endpoint requirements
+    options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme; // Use Cookie scheme for sign-in
 })
-    .AddCookie()
+    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddGoogle(googleOptions =>
     {
         googleOptions.ClientId = builder.Configuration["Google:ClientId"];
@@ -81,7 +82,7 @@ options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = "https://accounts.google.com",
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
             ValidAudience = builder.Configuration["Jwt:Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(key)
         };
@@ -124,6 +125,9 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 var app = builder.Build();
+
+
+app.UseCors(MyAllowSpecificOrigins);
 
 app.UseRouting();
 

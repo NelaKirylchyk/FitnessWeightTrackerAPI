@@ -13,8 +13,6 @@ namespace FitnessWeightTrackerAPI.Services.Interfaces
         Task<bool> DeleteUserAsync(int id);
         Task<User> GetUserByEmailAsync(string email);
 
-        int? GetUserIdFromAuth(ControllerBase controller);
-
         string GenerateUserJWTToken(User user);
     }
 }

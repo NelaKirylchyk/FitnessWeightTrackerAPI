@@ -3,6 +3,8 @@ using FitnessWeightTrackerAPI.Filters;
 using FitnessWeightTrackerAPI.Models;
 using FitnessWeightTrackerAPI.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -16,9 +18,9 @@ using static System.Net.WebRequestMethods;
 namespace FitnessWeightTrackerAPI.Controllers
 {
     //[ValidateModel]
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
-   // [EnableCors("_myAllowSpecificOrigins")]
+    [AllowAnonymous]
     public class AuthController : ControllerBase
     {
         private readonly IConfiguration _configuration;
@@ -35,13 +37,15 @@ namespace FitnessWeightTrackerAPI.Controllers
         {
             var redirectUrl = Url.Action("GoogleResponse", "Auth");
             var properties = new AuthenticationProperties { RedirectUri = $"https://localhost:7231{redirectUrl}" };
-            return Challenge(properties, "Google");
+
+            return Challenge(properties, GoogleDefaults.AuthenticationScheme);
+            //return Challenge(properties, "Google");
         }
 
         [HttpGet("google-response")]
         public async Task<IActionResult> GoogleResponse()
         {
-            var result = await HttpContext.AuthenticateAsync("Google");
+            var result = await HttpContext.AuthenticateAsync(GoogleDefaults.AuthenticationScheme);
             if (result?.Principal == null)
             {
                 return Redirect("~/");
