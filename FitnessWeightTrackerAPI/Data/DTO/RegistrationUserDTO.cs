@@ -12,7 +12,6 @@ namespace FitnessWeightTrackerAPI.Data.DTO
         [StringLength(32, MinimumLength = 1)]
         public string Surname { get; set; }
 
-        [Required]
         public int Gender { get; set; }
 
         public DateTime BirthDate { get; set; }

@@ -17,7 +17,7 @@ using static System.Net.WebRequestMethods;
 
 namespace FitnessWeightTrackerAPI.Controllers
 {
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     [ApiController]
     [AllowAnonymous]
     public class AuthController : ControllerBase
