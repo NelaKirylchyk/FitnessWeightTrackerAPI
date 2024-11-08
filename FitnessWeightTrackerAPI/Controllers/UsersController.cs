@@ -1,13 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using FitnessWeightTrackerAPI.Models;
-using FitnessWeightTrackerAPI.Services.Interfaces;
-using FitnessWeightTrackerAPI.Data.DTO;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using FitnessWeightTrackerAPI.Filters;
-
-namespace FitnessWeightTrackerAPI.Controllers
+﻿namespace FitnessWeightTrackerAPI.Controllers
 {
+    using FitnessWeightTrackerAPI.Data.DTO;
+    using FitnessWeightTrackerAPI.Filters;
+    using FitnessWeightTrackerAPI.Models;
+    using FitnessWeightTrackerAPI.Services.Interfaces;
+    using Microsoft.AspNetCore.Authentication.JwtBearer;
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+
     [ValidateModel]
     [Route("api/[controller]/[action]")]
     [ApiController]
@@ -59,6 +59,7 @@ namespace FitnessWeightTrackerAPI.Controllers
             {
                 return BadRequest("User with this email/username already exists");
             }
+
             return CreatedAtAction(nameof(PostUsers), new { id = registeredUser.Id });
         }
 
@@ -72,6 +73,7 @@ namespace FitnessWeightTrackerAPI.Controllers
             {
                 return NotFound();
             }
+
             return NoContent();
         }
     }

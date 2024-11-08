@@ -1,16 +1,13 @@
-﻿using FitnessWeightTrackerAPI.Data;
-using FitnessWeightTrackerAPI.Data.DTO;
-using FitnessWeightTrackerAPI.Models;
-using FitnessWeightTrackerAPI.Services.Helpers;
-using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
-using System;
-using FitnessWeightTrackerAPI.CustomExceptions;
-using FitnessWeightTrackerAPI.Services.Interfaces;
-
-namespace FitnessWeightTrackerAPI.Services
+﻿namespace FitnessWeightTrackerAPI.Services
 {
+    using FitnessWeightTrackerAPI.CustomExceptions;
+    using FitnessWeightTrackerAPI.Data;
+    using FitnessWeightTrackerAPI.Data.DTO;
+    using FitnessWeightTrackerAPI.Models;
+    using FitnessWeightTrackerAPI.Services.Helpers;
+    using FitnessWeightTrackerAPI.Services.Interfaces;
+    using Microsoft.EntityFrameworkCore;
+
     public class BodyWeightService : IBodyWeightService
     {
         private readonly FitnessWeightTrackerDbContext _context;
@@ -37,6 +34,7 @@ namespace FitnessWeightTrackerAPI.Services
                 _context.BodyWeightRecords.Remove(existingRecord);
                 await _context.SaveChangesAsync();
             }
+
             return existingRecord != null;
         }
 
@@ -46,11 +44,11 @@ namespace FitnessWeightTrackerAPI.Services
             return record;
         }
 
-        public async Task<BodyWeightRecord[]> GetAllUserBodyweightRecords(int userId, bool AscendingOrder = false)
+        public async Task<BodyWeightRecord[]> GetAllUserBodyweightRecords(int userId, bool ascendingOrder = false)
         {
             BodyWeightRecord[] records = null;
 
-            if (AscendingOrder == false)
+            if (ascendingOrder == false)
             {
                 records = await _context.BodyWeightRecords
                     .Where(record => record.UserId == userId)
@@ -60,7 +58,7 @@ namespace FitnessWeightTrackerAPI.Services
             else
             {
                 records = await _context.BodyWeightRecords
-                     .Where(record => record.UserId == userId)
+                    .Where(record => record.UserId == userId)
                     .OrderBy(record => record.Date)
                     .ToArrayAsync();
             }
@@ -73,12 +71,11 @@ namespace FitnessWeightTrackerAPI.Services
             var userExists = await UserExists(userId);
             var existingBodyWeightRecord = await _context.BodyWeightRecords.FirstOrDefaultAsync(t => t.UserId == userId && t.Id == id);
 
-
             if (userExists && existingBodyWeightRecord != null)
             {
                 existingBodyWeightRecord.Weight = record.Weight;
                 existingBodyWeightRecord.Date = record.Date;
-               
+
                 // Validate updated entity
                 if (!ValidationHelper.TryValidateObject(existingBodyWeightRecord, out var validationResults))
                 {
@@ -88,6 +85,7 @@ namespace FitnessWeightTrackerAPI.Services
                 _context.BodyWeightRecords.Update(existingBodyWeightRecord);
                 await _context.SaveChangesAsync();
             }
+
             return existingBodyWeightRecord;
         }
 
@@ -119,7 +117,6 @@ namespace FitnessWeightTrackerAPI.Services
         }
 
         #endregion
-
 
         #region BodyWeightTarget
         public async Task<BodyWeightTarget> GetUserBodyweightTarget(int userId)
@@ -153,6 +150,7 @@ namespace FitnessWeightTrackerAPI.Services
                 _context.BodyWeightTargets.Add(entity);
                 await _context.SaveChangesAsync();
             }
+
             return entity;
         }
 
@@ -160,7 +158,6 @@ namespace FitnessWeightTrackerAPI.Services
         {
             var userExists = await UserExists(userId);
             var existingBodyWeightTarget = await _context.BodyWeightTargets.FirstOrDefaultAsync(t => t.UserId == userId && t.Id == id);
-
 
             if (userExists && existingBodyWeightTarget != null)
             {
@@ -176,6 +173,7 @@ namespace FitnessWeightTrackerAPI.Services
                 _context.BodyWeightTargets.Update(existingBodyWeightTarget);
                 await _context.SaveChangesAsync();
             }
+
             return existingBodyWeightTarget;
         }
 
@@ -187,9 +185,9 @@ namespace FitnessWeightTrackerAPI.Services
                 _context.BodyWeightTargets.Remove(target);
                 await _context.SaveChangesAsync();
             }
+
             return target != null;
         }
-
 
         #endregion
 

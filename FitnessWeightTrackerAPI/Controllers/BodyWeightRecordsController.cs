@@ -1,14 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using FitnessWeightTrackerAPI.Models;
-using FitnessWeightTrackerAPI.Data.DTO;
-using FitnessWeightTrackerAPI.Filters;
-using FitnessWeightTrackerAPI.Services.Interfaces;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using System.Security.Claims;
-
-namespace FitnessWeightTrackerAPI.Controllers
+﻿namespace FitnessWeightTrackerAPI.Controllers
 {
+    using System.Security.Claims;
+    using FitnessWeightTrackerAPI.Data.DTO;
+    using FitnessWeightTrackerAPI.Filters;
+    using FitnessWeightTrackerAPI.Models;
+    using FitnessWeightTrackerAPI.Services.Interfaces;
+    using Microsoft.AspNetCore.Authentication.JwtBearer;
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+
     [ValidateModel]
     [Route("api/[controller]")]
     [ApiController]
@@ -36,7 +36,6 @@ namespace FitnessWeightTrackerAPI.Controllers
             var userId = int.Parse(userIdClaim.Value);
 
             return await _bodyWeightService.GetAllUserBodyweightRecords(userId);
-
         }
 
         // GET: api/BodyWeightRecords/5
@@ -61,7 +60,6 @@ namespace FitnessWeightTrackerAPI.Controllers
             return bodyWeightRecord;
         }
 
-
         // POST: api/BodyWeightRecords
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
@@ -85,8 +83,8 @@ namespace FitnessWeightTrackerAPI.Controllers
             return CreatedAtAction("GetBodyWeightRecords", new
             {
                 id = created.Id,
-
-            }, bodyWeightRecord);
+            },
+            bodyWeightRecord);
         }
 
         // PUT: api/BodyWeightRecord/5
@@ -112,7 +110,6 @@ namespace FitnessWeightTrackerAPI.Controllers
             return NoContent();
         }
 
-
         // DELETE: api/BodyWeightRecords/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteBodyWeightRecords(int id)
@@ -130,6 +127,7 @@ namespace FitnessWeightTrackerAPI.Controllers
             {
                 return NotFound();
             }
+
             return NoContent();
         }
     }

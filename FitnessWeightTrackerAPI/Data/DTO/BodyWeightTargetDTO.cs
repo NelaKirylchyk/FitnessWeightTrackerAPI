@@ -1,8 +1,8 @@
-﻿using FitnessWeightTrackerAPI.Models.CustomValidation;
-using System.ComponentModel.DataAnnotations;
-
-namespace FitnessWeightTrackerAPI.Data.DTO
+﻿namespace FitnessWeightTrackerAPI.Data.DTO
 {
+    using System.ComponentModel.DataAnnotations;
+    using FitnessWeightTrackerAPI.Models.CustomValidation;
+
     public class BodyWeightTargetDTO
     {
         [Range(0.01, 500.0, ErrorMessage = "Target weight must be between 0.01 and 500.")]

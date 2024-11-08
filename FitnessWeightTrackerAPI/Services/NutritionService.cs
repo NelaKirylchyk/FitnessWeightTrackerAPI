@@ -1,20 +1,22 @@
-﻿using FitnessWeightTrackerAPI.CustomExceptions;
-using FitnessWeightTrackerAPI.Data;
-using FitnessWeightTrackerAPI.Data.DTO;
-using FitnessWeightTrackerAPI.Models;
-using FitnessWeightTrackerAPI.Services.Helpers;
-using FitnessWeightTrackerAPI.Services.Interfaces;
-using Microsoft.EntityFrameworkCore;
-
-namespace FitnessWeightTrackerAPI.Services
+﻿namespace FitnessWeightTrackerAPI.Services
 {
+    using FitnessWeightTrackerAPI.CustomExceptions;
+    using FitnessWeightTrackerAPI.Data;
+    using FitnessWeightTrackerAPI.Data.DTO;
+    using FitnessWeightTrackerAPI.Models;
+    using FitnessWeightTrackerAPI.Services.Helpers;
+    using FitnessWeightTrackerAPI.Services.Interfaces;
+    using Microsoft.EntityFrameworkCore;
+
     public class NutritionService : INutritionService
     {
         private readonly FitnessWeightTrackerDbContext _context;
-        public NutritionService(FitnessWeightTrackerDbContext context) 
+
+        public NutritionService(FitnessWeightTrackerDbContext context)
         {
             _context = context;
         }
+
         public async Task<FoodRecord> AddFoodRecord(FoodRecordDTO foodRecord, int userId)
         {
             var userExists = await UserExists(userId);
@@ -71,12 +73,12 @@ namespace FitnessWeightTrackerAPI.Services
                 _context.NutritionTargets.Add(entity);
                 await _context.SaveChangesAsync();
             }
+
             return entity;
         }
 
         public async Task DeleteAllFoodRecords(int userId)
         {
-
             FoodRecord[] existingRecords = await _context.FoodRecords.Where(x => x.UserId == userId).ToArrayAsync();
             _context.FoodRecords.RemoveRange(existingRecords);
             await _context.SaveChangesAsync();
@@ -90,14 +92,15 @@ namespace FitnessWeightTrackerAPI.Services
                 _context.FoodRecords.Remove(existingRecord);
                 await _context.SaveChangesAsync();
             }
+
             return existingRecord != null;
         }
 
-        public async Task<FoodRecord[]> GetAllFoodRecords(int userId, bool AscendingOrder = false)
+        public async Task<FoodRecord[]> GetAllFoodRecords(int userId, bool ascendingOrder = false)
         {
             FoodRecord[] records = null;
 
-            if (AscendingOrder == false)
+            if (ascendingOrder == false)
             {
                 records = await _context.FoodRecords
                     .Where(record => record.UserId == userId)
@@ -123,9 +126,9 @@ namespace FitnessWeightTrackerAPI.Services
                 _context.NutritionTargets.Remove(target);
                 await _context.SaveChangesAsync();
             }
+
             return target != null;
         }
-
 
         public async Task<FoodRecord> GetFoodRecord(int id, int userId)
         {
@@ -144,7 +147,6 @@ namespace FitnessWeightTrackerAPI.Services
             var userExists = await UserExists(userId);
             var foodRecord = await _context.FoodRecords.FirstOrDefaultAsync(t => t.UserId == userId && t.Id == id);
 
-
             if (userExists && foodRecord != null)
             {
                 foodRecord.ConsumptionDate = record.ConsumptionDate;
@@ -160,6 +162,7 @@ namespace FitnessWeightTrackerAPI.Services
                 _context.FoodRecords.Update(foodRecord);
                 await _context.SaveChangesAsync();
             }
+
             return foodRecord;
         }
 
@@ -167,7 +170,6 @@ namespace FitnessWeightTrackerAPI.Services
         {
             var userExists = await UserExists(userId);
             var nutritionTarget = await _context.NutritionTargets.FirstOrDefaultAsync(t => t.UserId == userId && t.Id == id);
-
 
             if (userExists && nutritionTarget != null)
             {
@@ -185,6 +187,7 @@ namespace FitnessWeightTrackerAPI.Services
                 _context.NutritionTargets.Update(nutritionTarget);
                 await _context.SaveChangesAsync();
             }
+
             return nutritionTarget;
         }
 

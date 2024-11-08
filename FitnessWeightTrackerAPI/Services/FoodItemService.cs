@@ -1,13 +1,13 @@
-﻿using FitnessWeightTrackerAPI.CustomExceptions;
-using FitnessWeightTrackerAPI.Data;
-using FitnessWeightTrackerAPI.Data.DTO;
-using FitnessWeightTrackerAPI.Models;
-using FitnessWeightTrackerAPI.Services.Helpers;
-using FitnessWeightTrackerAPI.Services.Interfaces;
-using Microsoft.EntityFrameworkCore;
-
-namespace FitnessWeightTrackerAPI.Services
+﻿namespace FitnessWeightTrackerAPI.Services
 {
+    using FitnessWeightTrackerAPI.CustomExceptions;
+    using FitnessWeightTrackerAPI.Data;
+    using FitnessWeightTrackerAPI.Data.DTO;
+    using FitnessWeightTrackerAPI.Models;
+    using FitnessWeightTrackerAPI.Services.Helpers;
+    using FitnessWeightTrackerAPI.Services.Interfaces;
+    using Microsoft.EntityFrameworkCore;
+
     public class FoodItemService : IFoodItemService
     {
         private readonly FitnessWeightTrackerDbContext _context;
@@ -16,6 +16,7 @@ namespace FitnessWeightTrackerAPI.Services
         {
             _context = context;
         }
+
         public async Task<FoodItem> AddFoodItem(FoodItemDTO foodItem)
         {
             var entity = new FoodItem()
@@ -55,6 +56,7 @@ namespace FitnessWeightTrackerAPI.Services
                 _context.FoodItems.Remove(existingFoodItem);
                 await _context.SaveChangesAsync();
             }
+
             return existingFoodItem != null;
         }
 
@@ -92,6 +94,7 @@ namespace FitnessWeightTrackerAPI.Services
                 _context.FoodItems.Update(foodItem);
                 await _context.SaveChangesAsync();
             }
+
             return foodItem;
         }
     }

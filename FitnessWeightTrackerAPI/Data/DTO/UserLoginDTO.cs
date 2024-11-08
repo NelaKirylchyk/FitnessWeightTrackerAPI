@@ -1,7 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace FitnessWeightTrackerAPI.Data.DTO
+﻿namespace FitnessWeightTrackerAPI.Data.DTO
 {
+    using System.ComponentModel.DataAnnotations;
+
     public class UserLoginDTO
     {
         [Required]

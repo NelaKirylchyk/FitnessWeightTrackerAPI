@@ -1,7 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace FitnessWeightTrackerAPI.Models.CustomValidation
+﻿namespace FitnessWeightTrackerAPI.Models.CustomValidation
 {
+    using System.ComponentModel.DataAnnotations;
+
     public class DateRangeValidationAttribute : ValidationAttribute
     {
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
@@ -10,6 +10,7 @@ namespace FitnessWeightTrackerAPI.Models.CustomValidation
             {
                 return ValidationResult.Success;
             }
+
             return new ValidationResult("Date cannot be in the future.");
         }
     }

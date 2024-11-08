@@ -1,7 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace FitnessWeightTrackerAPI.Data.DTO
+﻿namespace FitnessWeightTrackerAPI.Data.DTO
 {
+    using System.ComponentModel.DataAnnotations;
+
     public class RegistrationUserDTO
     {
         [Required]
@@ -19,7 +19,7 @@ namespace FitnessWeightTrackerAPI.Data.DTO
         [Required]
         [StringLength(32, MinimumLength = 1)]
         public string UserName { get; set; }
-        
+
         [Required]
         [EmailAddress(ErrorMessage = "Invalid email address.")]
         [RegularExpression(@"^[\w!#$%&'*+\-/=?\^_`{|}~]+(\.[\w!#$%&'*+\-/=?\^_`{|}~]+)*" + "@" + @"((([\-\w]+\.)+[a-zA-Z]{2,4})|(([0-9]{1,3}\.){3}[0-9]{1,3}))$", ErrorMessage = "Invalid email format.")]
@@ -28,6 +28,5 @@ namespace FitnessWeightTrackerAPI.Data.DTO
         [Required]
         [StringLength(128, MinimumLength = 8)]
         public string Password { get; set; }
-
     }
 }

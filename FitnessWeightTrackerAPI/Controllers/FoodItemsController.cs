@@ -1,13 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using FitnessWeightTrackerAPI.Models;
-using FitnessWeightTrackerAPI.Data.DTO;
-using FitnessWeightTrackerAPI.Filters;
-using FitnessWeightTrackerAPI.Services.Interfaces;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
-
-namespace FitnessWeightTrackerAPI.Controllers
+﻿namespace FitnessWeightTrackerAPI.Controllers
 {
+    using FitnessWeightTrackerAPI.Data.DTO;
+    using FitnessWeightTrackerAPI.Filters;
+    using FitnessWeightTrackerAPI.Models;
+    using FitnessWeightTrackerAPI.Services.Interfaces;
+    using Microsoft.AspNetCore.Authentication.JwtBearer;
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+
     [ValidateModel]
     [Route("api/[controller]")]
     [ApiController]
@@ -43,7 +43,6 @@ namespace FitnessWeightTrackerAPI.Controllers
         }
 
         // PUT: api/FoodItems/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutFoodItems(int id, FoodItemDTO foodItem)
         {
@@ -68,9 +67,7 @@ namespace FitnessWeightTrackerAPI.Controllers
             }
 
             return CreatedAtAction("GetFoodItems", new { id = created.Id }, foodItem);
-
         }
-
 
         // DELETE: api/FoodItems/5
         [HttpDelete("{id}")]
@@ -81,6 +78,7 @@ namespace FitnessWeightTrackerAPI.Controllers
             {
                 return NotFound();
             }
+
             return NoContent();
         }
 

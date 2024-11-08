@@ -1,7 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace FitnessWeightTrackerAPI.Services.Helpers
+﻿namespace FitnessWeightTrackerAPI.Services.Helpers
 {
+    using System.ComponentModel.DataAnnotations;
+
     public static class ValidationHelper
     {
         public static bool TryValidateObject(object obj, out List<ValidationResult> results)

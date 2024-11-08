@@ -1,18 +1,17 @@
-﻿using FitnessWeightTrackerAPI.CustomExceptions;
-using FitnessWeightTrackerAPI.Data;
-using FitnessWeightTrackerAPI.Data.DTO;
-using FitnessWeightTrackerAPI.Models;
-using FitnessWeightTrackerAPI.Services.Helpers;
-using FitnessWeightTrackerAPI.Services.Interfaces;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-
-namespace FitnessWeightTrackerAPI.Services
+﻿namespace FitnessWeightTrackerAPI.Services
 {
+    using System.IdentityModel.Tokens.Jwt;
+    using System.Security.Claims;
+    using System.Text;
+    using FitnessWeightTrackerAPI.CustomExceptions;
+    using FitnessWeightTrackerAPI.Data;
+    using FitnessWeightTrackerAPI.Data.DTO;
+    using FitnessWeightTrackerAPI.Models;
+    using FitnessWeightTrackerAPI.Services.Helpers;
+    using FitnessWeightTrackerAPI.Services.Interfaces;
+    using Microsoft.EntityFrameworkCore;
+    using Microsoft.IdentityModel.Tokens;
+
     public class UserService : IUserService
     {
         private readonly FitnessWeightTrackerDbContext _context;
@@ -24,7 +23,7 @@ namespace FitnessWeightTrackerAPI.Services
             _context = context;
             _configuration = configuration;
 
-            _tokenValidationParameters = new()
+            _tokenValidationParameters = new ()
             {
                 ValidateIssuer = true,
                 ValidateAudience = true,
@@ -32,7 +31,7 @@ namespace FitnessWeightTrackerAPI.Services
                 ValidateIssuerSigningKey = true,
                 ValidIssuer = _configuration["Jwt:Issuer"],
                 ValidAudience = _configuration["Jwt:Audience"],
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!))
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"] !))
             };
         }
 
@@ -59,30 +58,6 @@ namespace FitnessWeightTrackerAPI.Services
             }
 
             return user;
-        }
-
-        public async Task<User> GetUserByEmailAsync(string email)
-        {
-            var user = await _context.Users.FirstOrDefaultAsync(r => r.Email == email);
-
-            if (user == null)
-            {
-                return null;
-            }
-
-            return await GetUserByIdAsync(user.Id);
-        }
-
-        private async Task<User> GetUserByUsernameAsync(string userName)
-        {
-            var user = await _context.Users.FirstOrDefaultAsync(r => r.UserName == userName);
-
-            if (user == null)
-            {
-                return null;
-            }
-
-            return await GetUserByIdAsync(user.Id);
         }
 
         public async Task<User> RegisterUserAsync(RegistrationUserDTO user)
@@ -119,6 +94,7 @@ namespace FitnessWeightTrackerAPI.Services
                 _context.Users.Remove(existingUser);
                 await _context.SaveChangesAsync();
             }
+
             return existingUser != null;
         }
 
@@ -147,6 +123,20 @@ namespace FitnessWeightTrackerAPI.Services
                 signingCredentials: creds);
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        public async Task<User> GetUserByEmailAsync(string email)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(r => r.Email == email);
+
+            return user == null ? null : await GetUserByIdAsync(user.Id);
+        }
+
+        private async Task<User> GetUserByUsernameAsync(string userName)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(r => r.UserName == userName);
+
+            return user == null ? null : await GetUserByIdAsync(user.Id);
         }
 
         private string GenerateHashedPassword(string password)

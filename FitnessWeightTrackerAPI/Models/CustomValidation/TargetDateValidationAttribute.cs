@@ -1,7 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace FitnessWeightTrackerAPI.Models.CustomValidation
+﻿namespace FitnessWeightTrackerAPI.Models.CustomValidation
 {
+    using System.ComponentModel.DataAnnotations;
+
     public class TargetDateValidationAttribute : ValidationAttribute
     {
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
@@ -10,8 +10,8 @@ namespace FitnessWeightTrackerAPI.Models.CustomValidation
             {
                 return ValidationResult.Success;
             }
+
             return new ValidationResult("Target date must be in the future.");
         }
-
     }
 }

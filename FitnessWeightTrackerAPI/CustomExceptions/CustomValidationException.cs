@@ -1,7 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace FitnessWeightTrackerAPI.CustomExceptions
+﻿namespace FitnessWeightTrackerAPI.CustomExceptions
 {
+    using System.ComponentModel.DataAnnotations;
+
     public class CustomValidationException : Exception
     {
         public CustomValidationException(IEnumerable<ValidationResult> validationResults)
@@ -11,6 +11,5 @@ namespace FitnessWeightTrackerAPI.CustomExceptions
         }
 
         public IEnumerable<ValidationResult> ValidationResults { get; }
-
     }
 }

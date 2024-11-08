@@ -1,7 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace FitnessWeightTrackerAPI.Data.DTO
+﻿namespace FitnessWeightTrackerAPI.Data.DTO
 {
+    using System.ComponentModel.DataAnnotations;
+
     public class NutritionTargetDTO
     {
         [Range(0, 10000, ErrorMessage = "Daily calories must be between 0 and 10,000.")]

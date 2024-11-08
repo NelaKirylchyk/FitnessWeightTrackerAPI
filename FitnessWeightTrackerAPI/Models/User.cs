@@ -1,13 +1,14 @@
-﻿using Microsoft.AspNetCore.Identity;
-using System.ComponentModel.DataAnnotations;
-
-namespace FitnessWeightTrackerAPI.Models
+﻿namespace FitnessWeightTrackerAPI.Models
 {
+    using System.ComponentModel.DataAnnotations;
+
     public class User
     {
         public int Id { get; set; }
+
         [Required]
         public string Name { get; set; }
+
         [Required]
         public string Surname { get; set; }
 
@@ -17,10 +18,10 @@ namespace FitnessWeightTrackerAPI.Models
 
         [Required]
         public string UserName { get; set; }
+
         [Required]
         public string Email { get; set; }
 
         public string PasswordHash { get; set; }
-
     }
 }

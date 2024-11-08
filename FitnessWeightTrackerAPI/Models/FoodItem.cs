@@ -1,7 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace FitnessWeightTrackerAPI.Models
+﻿namespace FitnessWeightTrackerAPI.Models
 {
+    using System.ComponentModel.DataAnnotations;
+
     public class FoodItem
     {
         [Key]
@@ -29,6 +29,6 @@ namespace FitnessWeightTrackerAPI.Models
 
         [Required]
         [Range(0, 10000, ErrorMessage = "Serving size must be between 0 and 10,000 grams.")]
-        public int ServingSize {  get; set; }
+        public int ServingSize { get; set; }
     }
 }

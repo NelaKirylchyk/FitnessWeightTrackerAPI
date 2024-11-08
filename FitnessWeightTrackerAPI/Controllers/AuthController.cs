@@ -1,34 +1,24 @@
-﻿using FitnessWeightTrackerAPI.Data.DTO;
-using FitnessWeightTrackerAPI.Filters;
-using FitnessWeightTrackerAPI.Models;
-using FitnessWeightTrackerAPI.Services.Interfaces;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Google;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Security.Policy;
-using System.Text;
-using static System.Net.WebRequestMethods;
-
-namespace FitnessWeightTrackerAPI.Controllers
+﻿namespace FitnessWeightTrackerAPI.Controllers
 {
+    using System.Security.Claims;
+    using FitnessWeightTrackerAPI.Data.DTO;
+    using FitnessWeightTrackerAPI.Models;
+    using FitnessWeightTrackerAPI.Services.Interfaces;
+    using Microsoft.AspNetCore.Authentication;
+    using Microsoft.AspNetCore.Authentication.Google;
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+
     [Route("api/[controller]")]
     [ApiController]
     [AllowAnonymous]
     public class AuthController : ControllerBase
     {
-        private readonly IConfiguration _configuration;
         private readonly IUserService _userService;
 
-        public AuthController(IConfiguration configuration, IUserService userRepository)
+        public AuthController(IUserService userService)
         {
-            _configuration = configuration;
-            _userService = userRepository;
+            _userService = userService;
         }
 
         [HttpGet("signin-google")]
@@ -55,7 +45,7 @@ namespace FitnessWeightTrackerAPI.Controllers
                 UserName = email,
                 Email = email,
                 Name = result.Principal.FindFirstValue(ClaimTypes.GivenName) ?? email,
-                Surname = result.Principal.FindFirstValue(ClaimTypes.Surname) ?? email
+                Surname = result.Principal.FindFirstValue(ClaimTypes.Surname) ?? email,
             };
 
             if (user.Id == 0)

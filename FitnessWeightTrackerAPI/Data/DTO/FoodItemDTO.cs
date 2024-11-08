@@ -1,7 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace FitnessWeightTrackerAPI.Data.DTO
+﻿namespace FitnessWeightTrackerAPI.Data.DTO
 {
+    using System.ComponentModel.DataAnnotations;
+
     public class FoodItemDTO
     {
         [MaxLength(50, ErrorMessage = "Name cannot exceed 50 characters.")]
@@ -22,6 +22,5 @@ namespace FitnessWeightTrackerAPI.Data.DTO
 
         [Range(0, 10000, ErrorMessage = "Serving size must be between 0 and 10,000 grams.")]
         public int ServingSize { get; set; }
-
     }
 }

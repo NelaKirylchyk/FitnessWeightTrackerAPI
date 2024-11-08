@@ -1,8 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-
-namespace FitnessWeightTrackerAPI.Models
+﻿namespace FitnessWeightTrackerAPI.Models
 {
+    using System.ComponentModel.DataAnnotations;
+    using System.ComponentModel.DataAnnotations.Schema;
+
     public class NutritionTarget
     {
         public int Id { get; set; }
@@ -10,6 +10,7 @@ namespace FitnessWeightTrackerAPI.Models
         [Required]
         [ForeignKey("User")]
         public int UserId { get; set; }
+
         public User User { get; set; }
 
         [Required]

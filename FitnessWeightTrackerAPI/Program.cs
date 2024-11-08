@@ -1,27 +1,22 @@
+using System.Text;
 using FitnessWeightTrackerAPI.Data;
 using FitnessWeightTrackerAPI.Filters;
-using FitnessWeightTrackerAPI.Models;
 using FitnessWeightTrackerAPI.Services;
 using FitnessWeightTrackerAPI.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OAuth;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using System.Configuration;
-using System.Reflection;
-using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+var myAllowSpecificOrigins = "_myAllowSpecificOrigins";
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy(name: MyAllowSpecificOrigins,
+    options.AddPolicy(
+        name: myAllowSpecificOrigins,
         policy =>
         {
             policy.WithOrigins("https://localhost:7231")
@@ -42,13 +37,9 @@ builder.Services.AddControllers(options =>
     options.Filters.Add<ValidationExceptionFilter>();
 });
 
-
-
-//builder.Services.AddDbContext<FitnessWeightTrackerDbContext>(opt => opt.UseInMemoryDatabase("FitnessTracker"));
-
 builder.Services.AddDbContext<FitnessWeightTrackerDbContext>(opt => opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-//Add services to the container.
+// Add services to the container.
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -68,8 +59,9 @@ builder.Services.AddAuthentication(options =>
                 // Additional claims or token processing can be done here
                 var accessToken = context.AccessToken;
                 var userPrincipal = context.Principal;
+
                 // Save or process the access token as needed
-            }
+            },
         };
     })
     .AddJwtBearer(jwtOptions =>
@@ -84,7 +76,7 @@ builder.Services.AddAuthentication(options =>
             ValidateIssuerSigningKey = true,
             ValidIssuer = builder.Configuration["Jwt:Issuer"],
             ValidAudience = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(key)
+            IssuerSigningKey = new SymmetricSecurityKey(key),
         };
     });
 
@@ -94,8 +86,6 @@ builder.Services.AddTransient<IBodyWeightService, BodyWeightService>();
 builder.Services.AddTransient<IFoodItemService, FoodItemService>();
 builder.Services.AddTransient<INutritionService, NutritionService>();
 builder.Services.AddTransient<IUserService, UserService>();
-
-
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -109,25 +99,27 @@ builder.Services.AddSwaggerGen(c =>
         Scheme = "Bearer",
         BearerFormat = "JWT",
         In = ParameterLocation.Header,
-        Description = "JWT Authorization header required"
+        Description = "JWT Authorization header required",
     });
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement {
-        { new OpenApiSecurityScheme
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
         {
-            Reference = new OpenApiReference {
-                Type = ReferenceType.SecurityScheme,
-                Id = "Bearer"
-            }
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer",
+                },
+            },
+            new string[] { }
         },
-            new string[] {}
-        }
     });
 });
 
 var app = builder.Build();
 
-
-app.UseCors(MyAllowSpecificOrigins);
+app.UseCors(myAllowSpecificOrigins);
 
 app.UseRouting();
 
@@ -142,11 +134,13 @@ app.UseStaticFiles();
 
 app.UseHttpsRedirection();
 
-
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
 
 app.Run();
-public partial class Program { }
+
+public partial class Program
+{
+}

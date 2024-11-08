@@ -1,14 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using FitnessWeightTrackerAPI.Models;
-using FitnessWeightTrackerAPI.Data.DTO;
-using FitnessWeightTrackerAPI.Filters;
-using FitnessWeightTrackerAPI.Services.Interfaces;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
-
-namespace FitnessWeightTrackerAPI.Controllers
+﻿namespace FitnessWeightTrackerAPI.Controllers
 {
+    using System.Security.Claims;
+    using FitnessWeightTrackerAPI.Data.DTO;
+    using FitnessWeightTrackerAPI.Filters;
+    using FitnessWeightTrackerAPI.Models;
+    using FitnessWeightTrackerAPI.Services.Interfaces;
+    using Microsoft.AspNetCore.Authentication.JwtBearer;
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+
     [ValidateModel]
     [Route("api/[controller]")]
     [ApiController]
@@ -37,7 +37,6 @@ namespace FitnessWeightTrackerAPI.Controllers
         }
 
         // POST: api/NutritionTargets
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<NutritionTarget>> PostNutritionTargets(NutritionTargetDTO nutriotionTarget)
         {
@@ -59,7 +58,6 @@ namespace FitnessWeightTrackerAPI.Controllers
         }
 
         // PUT: api/NutritionTarget/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutNutritionTargets(int id, NutritionTargetDTO nutriotionTarget)
         {
@@ -96,6 +94,7 @@ namespace FitnessWeightTrackerAPI.Controllers
             {
                 return NotFound();
             }
+
             return NoContent();
         }
     }
