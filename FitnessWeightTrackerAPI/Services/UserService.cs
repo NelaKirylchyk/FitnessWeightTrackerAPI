@@ -1,17 +1,17 @@
-﻿namespace FitnessWeightTrackerAPI.Services
-{
-    using System.IdentityModel.Tokens.Jwt;
-    using System.Security.Claims;
-    using System.Text;
-    using FitnessWeightTrackerAPI.CustomExceptions;
-    using FitnessWeightTrackerAPI.Data;
-    using FitnessWeightTrackerAPI.Data.DTO;
-    using FitnessWeightTrackerAPI.Models;
-    using FitnessWeightTrackerAPI.Services.Helpers;
-    using FitnessWeightTrackerAPI.Services.Interfaces;
-    using Microsoft.EntityFrameworkCore;
-    using Microsoft.IdentityModel.Tokens;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using FitnessWeightTrackerAPI.CustomExceptions;
+using FitnessWeightTrackerAPI.Data;
+using FitnessWeightTrackerAPI.Data.DTO;
+using FitnessWeightTrackerAPI.Models;
+using FitnessWeightTrackerAPI.Services.Helpers;
+using FitnessWeightTrackerAPI.Services.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
+namespace FitnessWeightTrackerAPI.Services
+{
     public class UserService : IUserService
     {
         private readonly FitnessWeightTrackerDbContext _context;

@@ -1,6 +1,7 @@
-﻿namespace FitnessWeightTrackerAPI.Models.CustomValidation
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace FitnessWeightTrackerAPI.Models.CustomValidation
 {
-    using System.ComponentModel.DataAnnotations;
 
     public class TargetDateValidationAttribute : ValidationAttribute
     {

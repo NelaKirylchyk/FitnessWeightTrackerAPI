@@ -1,8 +1,8 @@
-﻿namespace FitnessWeightTrackerAPI.Data
-{
-    using FitnessWeightTrackerAPI.Models;
-    using Microsoft.EntityFrameworkCore;
+﻿using FitnessWeightTrackerAPI.Models;
+using Microsoft.EntityFrameworkCore;
 
+namespace FitnessWeightTrackerAPI.Data
+{
     public class FitnessWeightTrackerDbContext : DbContext
     {
         public FitnessWeightTrackerDbContext(DbContextOptions<FitnessWeightTrackerDbContext> options)

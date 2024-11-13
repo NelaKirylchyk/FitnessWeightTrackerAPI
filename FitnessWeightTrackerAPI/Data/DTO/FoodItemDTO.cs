@@ -1,7 +1,7 @@
-﻿namespace FitnessWeightTrackerAPI.Data.DTO
-{
-    using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
+namespace FitnessWeightTrackerAPI.Data.DTO
+{
     public class FoodItemDTO
     {
         [MaxLength(50, ErrorMessage = "Name cannot exceed 50 characters.")]

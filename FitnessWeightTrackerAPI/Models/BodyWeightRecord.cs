@@ -1,9 +1,9 @@
-﻿namespace FitnessWeightTrackerAPI.Models
-{
-    using System.ComponentModel.DataAnnotations;
-    using System.ComponentModel.DataAnnotations.Schema;
-    using FitnessWeightTrackerAPI.Models.CustomValidation;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using FitnessWeightTrackerAPI.Models.CustomValidation;
 
+namespace FitnessWeightTrackerAPI.Models
+{
     public class BodyWeightRecord
     {
         public int Id { get; set; }

@@ -1,9 +1,9 @@
-﻿namespace FitnessWeightTrackerAPI.Filters
-{
-    using System.ComponentModel.DataAnnotations;
-    using Microsoft.AspNetCore.Mvc;
-    using Microsoft.AspNetCore.Mvc.Filters;
+﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 
+namespace FitnessWeightTrackerAPI.Filters
+{
     public class ExceptionFilter : IExceptionFilter
     {
         public void OnException(ExceptionContext context)

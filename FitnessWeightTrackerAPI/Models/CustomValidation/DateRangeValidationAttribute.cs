@@ -1,7 +1,7 @@
-﻿namespace FitnessWeightTrackerAPI.Models.CustomValidation
-{
-    using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
+namespace FitnessWeightTrackerAPI.Models.CustomValidation
+{
     public class DateRangeValidationAttribute : ValidationAttribute
     {
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)

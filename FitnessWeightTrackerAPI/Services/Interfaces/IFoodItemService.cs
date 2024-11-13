@@ -1,8 +1,8 @@
-﻿namespace FitnessWeightTrackerAPI.Services.Interfaces
-{
-    using FitnessWeightTrackerAPI.Data.DTO;
-    using FitnessWeightTrackerAPI.Models;
+﻿using FitnessWeightTrackerAPI.Data.DTO;
+using FitnessWeightTrackerAPI.Models;
 
+namespace FitnessWeightTrackerAPI.Services.Interfaces
+{
     public interface IFoodItemService
     {
         public Task<FoodItem> GetFoodItem(int id);

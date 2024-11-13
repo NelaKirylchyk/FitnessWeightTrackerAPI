@@ -1,8 +1,8 @@
-﻿namespace FitnessWeightTrackerAPI.Data.DTO
-{
-    using System.ComponentModel.DataAnnotations;
-    using FitnessWeightTrackerAPI.Models.CustomValidation;
+﻿using System.ComponentModel.DataAnnotations;
+using FitnessWeightTrackerAPI.Models.CustomValidation;
 
+namespace FitnessWeightTrackerAPI.Data.DTO
+{
     public class FoodRecordDTO
     {
         public int FoodItemId { get; set; }

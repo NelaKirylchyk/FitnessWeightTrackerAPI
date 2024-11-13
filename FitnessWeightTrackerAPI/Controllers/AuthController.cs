@@ -1,14 +1,14 @@
-﻿namespace FitnessWeightTrackerAPI.Controllers
-{
-    using System.Security.Claims;
-    using FitnessWeightTrackerAPI.Data.DTO;
-    using FitnessWeightTrackerAPI.Models;
-    using FitnessWeightTrackerAPI.Services.Interfaces;
-    using Microsoft.AspNetCore.Authentication;
-    using Microsoft.AspNetCore.Authentication.Google;
-    using Microsoft.AspNetCore.Authorization;
-    using Microsoft.AspNetCore.Mvc;
+﻿using System.Security.Claims;
+using FitnessWeightTrackerAPI.Data.DTO;
+using FitnessWeightTrackerAPI.Models;
+using FitnessWeightTrackerAPI.Services.Interfaces;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
+namespace FitnessWeightTrackerAPI.Controllers
+{
     [Route("api/[controller]")]
     [ApiController]
     [AllowAnonymous]

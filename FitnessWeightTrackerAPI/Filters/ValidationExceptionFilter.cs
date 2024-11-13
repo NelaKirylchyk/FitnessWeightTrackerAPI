@@ -1,9 +1,9 @@
-﻿namespace FitnessWeightTrackerAPI.Filters
-{
-    using FitnessWeightTrackerAPI.CustomExceptions;
-    using Microsoft.AspNetCore.Mvc;
-    using Microsoft.AspNetCore.Mvc.Filters;
+﻿using FitnessWeightTrackerAPI.CustomExceptions;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 
+namespace FitnessWeightTrackerAPI.Filters
+{
     public class ValidationExceptionFilter : IExceptionFilter
     {
         public void OnException(ExceptionContext context)
