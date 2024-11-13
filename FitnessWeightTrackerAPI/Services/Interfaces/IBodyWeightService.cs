@@ -13,16 +13,8 @@ namespace FitnessWeightTrackerAPI.Services.Interfaces
 
         public Task DeleteAllBodyweightRecords(int userId);
 
-        public Task<bool> DeleteBodyweightRecord(int id, int userId);
+        public Task DeleteBodyweightRecord(int id, int userId);
 
-        public Task<BodyWeightRecord> UpdateBodyweightRecord(int id, int userId, BodyWeightRecordDTO record);
-
-        public Task<BodyWeightTarget> UpdateBodyweightTarget(int id, int userId, BodyWeightTargetDTO targetWeight);
-
-        public Task<BodyWeightTarget> GetUserBodyweightTarget(int userId);
-
-        public Task<BodyWeightTarget> AddBodyweightTarget(int userId, BodyWeightTargetDTO target);
-
-        public Task<bool> DeleteBodyweightTarget(int id, int userId);
+        public Task UpdateBodyweightRecord(int id, int userId, BodyWeightRecordDTO record);
     }
 }

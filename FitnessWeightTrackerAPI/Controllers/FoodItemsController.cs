@@ -25,7 +25,7 @@ namespace FitnessWeightTrackerAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<FoodItem>>> GetFoodItems()
         {
-           return await _foodItemService.GetAllFoodItems();
+            return await _foodItemService.GetAllFoodItems();
         }
 
         // GET: api/FoodItems/5
@@ -46,12 +46,7 @@ namespace FitnessWeightTrackerAPI.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutFoodItems(int id, FoodItemDTO foodItem)
         {
-            var record = await _foodItemService.UpdateFoodItem(id, foodItem);
-
-            if (record == null)
-            {
-                return NotFound($"Food Item with id={id} was not found.");
-            }
+            await _foodItemService.UpdateFoodItem(id, foodItem);
 
             return NoContent();
         }
@@ -73,11 +68,7 @@ namespace FitnessWeightTrackerAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteFoodItems(int id)
         {
-            var isDeleted = await _foodItemService.DeleteFoodItem(id);
-            if (!isDeleted)
-            {
-                return NotFound();
-            }
+            await _foodItemService.DeleteFoodItem(id);
 
             return NoContent();
         }

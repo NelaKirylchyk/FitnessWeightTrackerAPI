@@ -43,21 +43,12 @@ namespace FitnessWeightTrackerAPI.Services
 
         public async Task DeleteAllFoodItems()
         {
-            var existingFoodItems = await _context.FoodItems.ToArrayAsync();
-            _context.FoodItems.RemoveRange(existingFoodItems);
-            await _context.SaveChangesAsync();
+            await _context.FoodItems.ExecuteDeleteAsync();
         }
 
-        public async Task<bool> DeleteFoodItem(int id)
+        public async Task DeleteFoodItem(int id)
         {
-            var existingFoodItem = await _context.FoodItems.FirstOrDefaultAsync(r => r.Id == id);
-            if (existingFoodItem != null)
-            {
-                _context.FoodItems.Remove(existingFoodItem);
-                await _context.SaveChangesAsync();
-            }
-
-            return existingFoodItem != null;
+            await _context.FoodItems.Where(r => r.Id == id).ExecuteDeleteAsync();
         }
 
         public async Task<FoodItem[]> GetAllFoodItems()
@@ -72,30 +63,20 @@ namespace FitnessWeightTrackerAPI.Services
             return foodItem;
         }
 
-        public async Task<FoodItem> UpdateFoodItem(int id, FoodItemDTO record)
+        public async Task UpdateFoodItem(int id, FoodItemDTO record)
         {
-            var foodItem = await _context.FoodItems.FirstOrDefaultAsync(t => t.Id == id);
-
-            if (foodItem != null)
+            if (!ValidationHelper.TryValidateObject(record, out var validationResults))
             {
-                foodItem.Protein = record.Protein;
-                foodItem.Name = record.Name;
-                foodItem.Calories = record.Calories;
-                foodItem.Carbohydrates = record.Carbohydrates;
-                foodItem.Fat = record.Fat;
-                foodItem.ServingSize = record.ServingSize;
-
-                // Validate updated entity
-                if (!ValidationHelper.TryValidateObject(foodItem, out var validationResults))
-                {
-                    throw new CustomValidationException(validationResults);
-                }
-
-                _context.FoodItems.Update(foodItem);
-                await _context.SaveChangesAsync();
+                throw new CustomValidationException(validationResults);
             }
 
-            return foodItem;
+            await _context.FoodItems.Where(t => t.Id == id)
+                .ExecuteUpdateAsync(setters => setters.SetProperty(b => b.Protein, record.Protein)
+                .SetProperty(b => b.Name, record.Name)
+                .SetProperty(b => b.Calories, record.Calories)
+                .SetProperty(b => b.Carbohydrates, record.Carbohydrates)
+                .SetProperty(b => b.Fat, record.Fat)
+                .SetProperty(b => b.ServingSize, record.ServingSize));
         }
     }
 }

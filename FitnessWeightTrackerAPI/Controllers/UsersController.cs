@@ -68,12 +68,7 @@ namespace FitnessWeightTrackerAPI.Controllers
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> DeleteUsers(int id)
         {
-            var isDeleted = await _userService.DeleteUserAsync(id);
-            if (!isDeleted)
-            {
-                return NotFound();
-            }
-
+            await _userService.DeleteUserAsync(id);
             return NoContent();
         }
     }

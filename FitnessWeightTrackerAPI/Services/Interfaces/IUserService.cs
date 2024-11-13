@@ -11,7 +11,7 @@ namespace FitnessWeightTrackerAPI.Services.Interfaces
 
         Task<User> LoginUserAsync(UserLoginDTO login);
 
-        Task<bool> DeleteUserAsync(int id);
+        Task DeleteUserAsync(int id);
 
         Task<User> GetUserByEmailAsync(string email);
 

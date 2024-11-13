@@ -15,26 +15,20 @@ namespace FitnessWeightTrackerAPI.Controllers
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class BodyWeightTargetsController : ControllerBase
     {
-        private IBodyWeightService _bodyWeightService;
+        private IBodyWeightTargetService _bodyWeightTargetService;
 
-        public BodyWeightTargetsController(IBodyWeightService bodyWeightService)
+        public BodyWeightTargetsController(IBodyWeightTargetService bodyWeightService)
         {
-            _bodyWeightService = bodyWeightService;
+            _bodyWeightTargetService = bodyWeightService;
         }
 
         // GET: api/BodyWeightTargets/5
         [HttpGet]
         public async Task<ActionResult<BodyWeightTarget>> GetBodyWeightTargets()
         {
-            var userIdClaim = this.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
-            if (userIdClaim == null)
-            {
-                return Unauthorized();
-            }
+            var userId = GetUserIdFromClaim();
 
-            var userId = int.Parse(userIdClaim.Value);
-
-            return await _bodyWeightService.GetUserBodyweightTarget(userId);
+            return await _bodyWeightTargetService.GetUserBodyweightTarget(userId);
         }
 
         // POST: api/BodyWeightTargets
@@ -42,14 +36,8 @@ namespace FitnessWeightTrackerAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<BodyWeightTarget>> PostBodyWeightTargets(BodyWeightTargetDTO bodyWeightTarget)
         {
-            var userIdClaim = this.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
-            if (userIdClaim == null)
-            {
-                return Unauthorized();
-            }
-
-            var userId = int.Parse(userIdClaim.Value);
-            var entity = await _bodyWeightService.AddBodyweightTarget(userId, bodyWeightTarget);
+            var userId = GetUserIdFromClaim();
+            var entity = await _bodyWeightTargetService.AddBodyweightTarget(userId, bodyWeightTarget);
 
             if (entity == null)
             {
@@ -63,19 +51,8 @@ namespace FitnessWeightTrackerAPI.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutBodyWeightTargets(int id, BodyWeightTargetDTO bodyWeightTarget)
         {
-            var userIdClaim = this.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
-            if (userIdClaim == null)
-            {
-                return Unauthorized();
-            }
-
-            var userId = int.Parse(userIdClaim.Value);
-            var record = await _bodyWeightService.UpdateBodyweightTarget(id, userId, bodyWeightTarget);
-
-            if (record == null)
-            {
-                return NotFound($"BodyWeghtTarget with user Id = {userId} was not added.");
-            }
+            var userId = GetUserIdFromClaim();
+            await _bodyWeightTargetService.UpdateBodyweightTarget(id, userId, bodyWeightTarget);
 
             return NoContent();
         }
@@ -84,20 +61,16 @@ namespace FitnessWeightTrackerAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteBodyWeightTargets(int id)
         {
-            var userIdClaim = this.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
-            if (userIdClaim == null)
-            {
-                return Unauthorized();
-            }
-
-            var userId = int.Parse(userIdClaim.Value);
-            var isDeleted = await _bodyWeightService.DeleteBodyweightTarget(id, userId);
-            if (!isDeleted)
-            {
-                return NotFound();
-            }
+            var userId = GetUserIdFromClaim();
+            await _bodyWeightTargetService.DeleteBodyweightTarget(id, userId);
 
             return NoContent();
+        }
+
+        private int GetUserIdFromClaim()
+        {
+            var userIdClaim = this.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+            return int.Parse(userIdClaim.Value);
         }
     }
 }

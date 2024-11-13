@@ -48,21 +48,12 @@ namespace FitnessWeightTrackerAPI.Services
 
         public async Task DeleteAllFoodRecords(int userId)
         {
-            FoodRecord[] existingRecords = await _context.FoodRecords.Where(x => x.UserId == userId).ToArrayAsync();
-            _context.FoodRecords.RemoveRange(existingRecords);
-            await _context.SaveChangesAsync();
+            await _context.FoodRecords.Where(x => x.UserId == userId).ExecuteDeleteAsync();
         }
 
-        public async Task<bool> DeleteFoodRecord(int id, int userId)
+        public async Task DeleteFoodRecord(int id, int userId)
         {
-            var existingRecord = await _context.FoodRecords.FirstOrDefaultAsync(r => r.Id == id && r.UserId == userId);
-            if (existingRecord != null)
-            {
-                _context.FoodRecords.Remove(existingRecord);
-                await _context.SaveChangesAsync();
-            }
-
-            return existingRecord != null;
+            await _context.FoodRecords.Where(r => r.Id == id && r.UserId == userId).ExecuteDeleteAsync();
         }
 
         public async Task<FoodRecord[]> GetAllFoodRecords(int userId, bool ascendingOrder = false)
@@ -93,28 +84,18 @@ namespace FitnessWeightTrackerAPI.Services
             return record;
         }
 
-        public async Task<FoodRecord> UpdateFoodRecord(int id, int userId, FoodRecordDTO record)
+        public async Task UpdateFoodRecord(int id, int userId, FoodRecordDTO record)
         {
-            var userExists = await UserExists(userId);
-            var foodRecord = await _context.FoodRecords.FirstOrDefaultAsync(t => t.UserId == userId && t.Id == id);
-
-            if (userExists && foodRecord != null)
+            if (!ValidationHelper.TryValidateObject(record, out var validationResults))
             {
-                foodRecord.ConsumptionDate = record.ConsumptionDate;
-                foodRecord.Quantity = record.Quantity;
-                foodRecord.FoodItemId = record.FoodItemId;
-
-                // Validate updated entity
-                if (!ValidationHelper.TryValidateObject(foodRecord, out var validationResults))
-                {
-                    throw new CustomValidationException(validationResults);
-                }
-
-                _context.FoodRecords.Update(foodRecord);
-                await _context.SaveChangesAsync();
+                throw new CustomValidationException(validationResults);
             }
 
-            return foodRecord;
+            var userExists = await UserExists(userId);
+            var foodRecord = await _context.FoodRecords.Where(t => t.UserId == userId && t.Id == id)
+                  .ExecuteUpdateAsync(setters => setters.SetProperty(b => b.ConsumptionDate, record.ConsumptionDate)
+                .SetProperty(b => b.Quantity, record.Quantity)
+                .SetProperty(b => b.FoodItemId, record.FoodItemId));
         }
 
         private async Task<bool> UserExists(int userId)

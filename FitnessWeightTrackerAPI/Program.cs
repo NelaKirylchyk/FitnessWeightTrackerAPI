@@ -78,6 +78,7 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddAuthorization();
 
 builder.Services.AddTransient<IBodyWeightService, BodyWeightService>();
+builder.Services.AddTransient<IBodyWeightTargetService, BodyWeightTargetService>();
 builder.Services.AddTransient<IFoodItemService, FoodItemService>();
 builder.Services.AddTransient<IFoodRecordService, FoodRecordService>();
 builder.Services.AddTransient<INutritionTargetService, NutritionTargetService>();

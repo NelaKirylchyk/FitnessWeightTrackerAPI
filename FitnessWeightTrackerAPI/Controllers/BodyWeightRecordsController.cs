@@ -75,12 +75,7 @@ namespace FitnessWeightTrackerAPI.Controllers
         {
             var userId = GetUserIdFromClaim();
 
-            var record = await _bodyWeightService.UpdateBodyweightRecord(id, userId, bodyWeightRecord);
-
-            if (record == null)
-            {
-                return NotFound($"BodyWeghtRecord with Id = {id} was not updated.");
-            }
+            await _bodyWeightService.UpdateBodyweightRecord(id, userId, bodyWeightRecord);
 
             return NoContent();
         }
@@ -91,11 +86,7 @@ namespace FitnessWeightTrackerAPI.Controllers
         {
             var userId = GetUserIdFromClaim();
 
-            var isDeleted = await _bodyWeightService.DeleteBodyweightRecord(id, userId);
-            if (!isDeleted)
-            {
-                return NotFound();
-            }
+            await _bodyWeightService.DeleteBodyweightRecord(id, userId);
 
             return NoContent();
         }

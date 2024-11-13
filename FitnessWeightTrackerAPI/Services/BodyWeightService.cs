@@ -5,6 +5,7 @@ using FitnessWeightTrackerAPI.Models;
 using FitnessWeightTrackerAPI.Services.Helpers;
 using FitnessWeightTrackerAPI.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace FitnessWeightTrackerAPI.Services
 {
@@ -21,21 +22,12 @@ namespace FitnessWeightTrackerAPI.Services
 
         public async Task DeleteAllBodyweightRecords(int userId)
         {
-            BodyWeightRecord[] existingRecords = await _context.BodyWeightRecords.Where(x => x.UserId == userId).ToArrayAsync();
-            _context.BodyWeightRecords.RemoveRange(existingRecords);
-            await _context.SaveChangesAsync();
+            await _context.BodyWeightRecords.Where(x => x.UserId == userId).ExecuteDeleteAsync();
         }
 
-        public async Task<bool> DeleteBodyweightRecord(int id, int userId)
+        public async Task DeleteBodyweightRecord(int id, int userId)
         {
-            var existingRecord = await _context.BodyWeightRecords.FirstOrDefaultAsync(r => r.Id == id && r.UserId == userId);
-            if (existingRecord != null)
-            {
-                _context.BodyWeightRecords.Remove(existingRecord);
-                await _context.SaveChangesAsync();
-            }
-
-            return existingRecord != null;
+            await _context.BodyWeightRecords.Where(r => r.Id == id && r.UserId == userId).ExecuteDeleteAsync();
         }
 
         public async Task<BodyWeightRecord> GetBodyweightRecord(int id, int userId)
@@ -66,26 +58,16 @@ namespace FitnessWeightTrackerAPI.Services
             return records;
         }
 
-        public async Task<BodyWeightRecord> UpdateBodyweightRecord(int id, int userId, BodyWeightRecordDTO record)
+        public async Task UpdateBodyweightRecord(int id, int userId, BodyWeightRecordDTO record)
         {
-            var existingBodyWeightRecord = await _context.BodyWeightRecords.FirstOrDefaultAsync(t => t.UserId == userId && t.Id == id);
-
-            if (existingBodyWeightRecord != null)
+            if (!ValidationHelper.TryValidateObject(record, out var validationResults))
             {
-                existingBodyWeightRecord.Weight = record.Weight;
-                existingBodyWeightRecord.Date = record.Date;
-
-                // Validate updated entity
-                if (!ValidationHelper.TryValidateObject(existingBodyWeightRecord, out var validationResults))
-                {
-                    throw new CustomValidationException(validationResults);
-                }
-
-                _context.BodyWeightRecords.Update(existingBodyWeightRecord);
-                await _context.SaveChangesAsync();
+                throw new CustomValidationException(validationResults);
             }
 
-            return existingBodyWeightRecord;
+            await _context.BodyWeightRecords.Where(t => t.UserId == userId && t.Id == id)
+                .ExecuteUpdateAsync(setters => setters.SetProperty(b => b.Weight, record.Weight)
+                .SetProperty(b => b.Date, record.Date));
         }
 
         public async Task<BodyWeightRecord> AddBodyweightRecord(int userId, BodyWeightRecordDTO record)
@@ -113,77 +95,6 @@ namespace FitnessWeightTrackerAPI.Services
             }
 
             return entity;
-        }
-
-        #endregion
-
-        #region BodyWeightTarget
-        public async Task<BodyWeightTarget> GetUserBodyweightTarget(int userId)
-        {
-            var result = await _context.BodyWeightTargets.AsNoTracking().FirstOrDefaultAsync(target => target.UserId == userId);
-            return result;
-        }
-
-        public async Task<BodyWeightTarget> AddBodyweightTarget(int userId, BodyWeightTargetDTO targetWeight)
-        {
-            var userExists = await UserExists(userId);
-
-            BodyWeightTarget? entity = null;
-
-            if (!userExists)
-            {
-                entity = new BodyWeightTarget()
-                {
-                    UserId = userId,
-                    TargetDate = targetWeight.TargetDate,
-                    TargetWeight = targetWeight.TargetWeight
-                };
-
-                // Validate updated entity
-                if (!ValidationHelper.TryValidateObject(entity, out var validationResults))
-                {
-                    throw new CustomValidationException(validationResults);
-                }
-
-                _context.BodyWeightTargets.Add(entity);
-                await _context.SaveChangesAsync();
-            }
-
-            return entity;
-        }
-
-        public async Task<BodyWeightTarget> UpdateBodyweightTarget(int id, int userId, BodyWeightTargetDTO targetWeight)
-        {
-            var existingBodyWeightTarget = await _context.BodyWeightTargets.FirstOrDefaultAsync(t => t.UserId == userId && t.Id == id);
-
-            if (existingBodyWeightTarget != null)
-            {
-                existingBodyWeightTarget.TargetWeight = targetWeight.TargetWeight;
-                existingBodyWeightTarget.TargetDate = targetWeight.TargetDate;
-
-                // Validate updated entity
-                if (!ValidationHelper.TryValidateObject(existingBodyWeightTarget, out var validationResults))
-                {
-                    throw new CustomValidationException(validationResults);
-                }
-
-                _context.BodyWeightTargets.Update(existingBodyWeightTarget);
-                await _context.SaveChangesAsync();
-            }
-
-            return existingBodyWeightTarget;
-        }
-
-        public async Task<bool> DeleteBodyweightTarget(int id, int userId)
-        {
-            var target = await _context.BodyWeightTargets.FirstOrDefaultAsync(t => t.UserId == userId && t.Id == id);
-            if (target != null)
-            {
-                _context.BodyWeightTargets.Remove(target);
-                await _context.SaveChangesAsync();
-            }
-
-            return target != null;
         }
 
         #endregion

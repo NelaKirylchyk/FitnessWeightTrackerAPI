@@ -77,16 +77,9 @@ namespace FitnessWeightTrackerAPI.Services
             return entity;
         }
 
-        public async Task<bool> DeleteUserAsync(int id)
+        public async Task DeleteUserAsync(int id)
         {
-            var existingUser = await _context.Users.AsNoTracking().FirstOrDefaultAsync(r => r.Id == id);
-            if (existingUser != null)
-            {
-                _context.Users.Remove(existingUser);
-                await _context.SaveChangesAsync();
-            }
-
-            return existingUser != null;
+            await _context.Users.Where(r => r.Id == id).ExecuteDeleteAsync();
         }
 
         public string GenerateUserJWTToken(string userName, string email, string userId)
