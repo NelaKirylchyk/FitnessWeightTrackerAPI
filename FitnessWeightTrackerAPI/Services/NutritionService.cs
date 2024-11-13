@@ -20,7 +20,7 @@
         public async Task<FoodRecord> AddFoodRecord(FoodRecordDTO foodRecord, int userId)
         {
             var userExists = await UserExists(userId);
-            var foodItemExists = _context.FoodItems.Any(x => x.Id == foodRecord.FoodItemId);
+            var foodItemExists = _context.FoodItems.AsNoTracking().Any(x => x.Id == foodRecord.FoodItemId);
             FoodRecord? entity = null;
 
             if (userExists && foodItemExists)
@@ -102,14 +102,14 @@
 
             if (ascendingOrder == false)
             {
-                records = await _context.FoodRecords
+                records = await _context.FoodRecords.AsNoTracking()
                     .Where(record => record.UserId == userId)
                     .OrderByDescending(record => record.ConsumptionDate)
                     .ToArrayAsync();
             }
             else
             {
-                records = await _context.FoodRecords
+                records = await _context.FoodRecords.AsNoTracking()
                      .Where(record => record.UserId == userId)
                     .OrderBy(record => record.ConsumptionDate)
                     .ToArrayAsync();
@@ -132,13 +132,13 @@
 
         public async Task<FoodRecord> GetFoodRecord(int id, int userId)
         {
-            var record = await _context.FoodRecords.FirstOrDefaultAsync(r => r.Id == id && r.UserId == userId);
+            var record = await _context.FoodRecords.AsNoTracking().FirstOrDefaultAsync(r => r.Id == id && r.UserId == userId);
             return record;
         }
 
         public async Task<NutritionTarget> GetNutritionTarget(int userId)
         {
-            var record = await _context.NutritionTargets.FirstOrDefaultAsync(r => r.UserId == userId);
+            var record = await _context.NutritionTargets.AsNoTracking().FirstOrDefaultAsync(r => r.UserId == userId);
             return record;
         }
 
@@ -193,7 +193,7 @@
 
         private async Task<bool> UserExists(int userId)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(r => r.Id == userId);
+            var user = await _context.Users.AsNoTracking().FirstOrDefaultAsync(r => r.Id == userId);
             return user != null;
         }
     }

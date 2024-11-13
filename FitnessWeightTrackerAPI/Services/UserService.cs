@@ -23,36 +23,30 @@
             _context = context;
             _configuration = configuration;
 
-            _tokenValidationParameters = new ()
+            _tokenValidationParameters = CreateTokenValidationParameters(configuration);
+        }
+
+        private static TokenValidationParameters CreateTokenValidationParameters(IConfiguration configuration)
+        {
+            return new TokenValidationParameters
             {
                 ValidateIssuer = true,
                 ValidateAudience = true,
                 ValidateLifetime = true,
                 ValidateIssuerSigningKey = true,
-                ValidIssuer = _configuration["Jwt:Issuer"],
-                ValidAudience = _configuration["Jwt:Audience"],
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"] !))
+                ValidIssuer = configuration["Jwt:Issuer"],
+                ValidAudience = configuration["Jwt:Audience"],
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]!))
             };
         }
 
-        public async Task<User> GetUserByIdAsync(int id)
-        {
-            return await _context.Users.FindAsync(id);
-        }
+        public async Task<User> GetUserByIdAsync(int id) => await _context.Users.AsNoTracking().FirstOrDefaultAsync(r => r.Id == id);
 
         public async Task<User> LoginUserAsync(UserLoginDTO login)
         {
-            // Get a user by username or email
-            var user = await GetUserByUsernameAsync(login.UsernameOrEmail) ?? await GetUserByEmailAsync(login.UsernameOrEmail);
+            var user = await GetUserByUsernameOrEmailAsync(login.UsernameOrEmail);
 
-            // Assert user exists
-            if (user == null)
-            {
-                return null;
-            }
-
-            // Verify the password is correct
-            if (!BCrypt.Net.BCrypt.Verify(login.Password, user.PasswordHash))
+            if (user == null || !BCrypt.Net.BCrypt.Verify(login.Password, user.PasswordHash))
             {
                 return null;
             }
@@ -60,13 +54,11 @@
             return user;
         }
 
-        public async Task<User> RegisterUserAsync(RegistrationUserDTO user)
+        public async Task<User> RegisterUserAsync(RegistrationUserDTO user, bool isExternalUser = false)
         {
-            string hashedPassword = GenerateHashedPassword(user.Password);
-
             var entity = new User
             {
-                PasswordHash = hashedPassword,
+                PasswordHash = isExternalUser ? string.Empty : GenerateHashedPassword(user.Password),
                 Email = user.Email,
                 UserName = user.UserName,
                 BirthDate = user.BirthDate,
@@ -75,7 +67,6 @@
                 Surname = user.Surname
             };
 
-            // Validate Entity
             if (!ValidationHelper.TryValidateObject(entity, out var validationResults))
             {
                 throw new CustomValidationException(validationResults);
@@ -88,7 +79,7 @@
 
         public async Task<bool> DeleteUserAsync(int id)
         {
-            var existingUser = await _context.Users.FirstOrDefaultAsync(r => r.Id == id);
+            var existingUser = await _context.Users.AsNoTracking().FirstOrDefaultAsync(r => r.Id == id);
             if (existingUser != null)
             {
                 _context.Users.Remove(existingUser);
@@ -127,28 +118,34 @@
 
         public async Task<User> GetUserByEmailAsync(string email)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(r => r.Email == email);
+            var user = await _context.Users.AsNoTracking().FirstOrDefaultAsync(r => r.Email == email);
 
             return user == null ? null : await GetUserByIdAsync(user.Id);
         }
 
         private async Task<User> GetUserByUsernameAsync(string userName)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(r => r.UserName == userName);
+            var user = await _context.Users.AsNoTracking().FirstOrDefaultAsync(r => r.UserName == userName);
 
             return user == null ? null : await GetUserByIdAsync(user.Id);
         }
 
+        private async Task<User> GetUserByUsernameOrEmailAsync(string usernameOrEmail)
+        {
+            var user = await GetUserByUsernameAsync(usernameOrEmail) ?? await GetUserByEmailAsync(usernameOrEmail);
+
+            return user;
+        }
+
         private string GenerateHashedPassword(string password)
         {
-            string hashedPassword = string.Empty;
-            if (password != null)
+            if (string.IsNullOrEmpty(password))
             {
-                string salt = BCrypt.Net.BCrypt.GenerateSalt();
-                hashedPassword = BCrypt.Net.BCrypt.HashPassword(password, salt);
+                throw new ArgumentException("Password cannot be null or empty", nameof(password));
             }
 
-            return hashedPassword;
+            var salt = BCrypt.Net.BCrypt.GenerateSalt();
+            return BCrypt.Net.BCrypt.HashPassword(password, salt);
         }
     }
 }

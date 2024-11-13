@@ -50,13 +50,15 @@
 
             if (user.Id == 0)
             {
-                await _userService.RegisterUserAsync(new RegistrationUserDTO()
+                var newUser = new RegistrationUserDTO()
                 {
                     Email = user.Email,
                     UserName = user.UserName,
                     Name = user.Name,
                     Surname = user.Surname
-                });
+                };
+
+                await _userService.RegisterUserAsync(newUser, isExternalUser: true);
             }
 
             var jwtToken = _userService.GenerateUserJWTToken(user);

@@ -40,7 +40,7 @@
 
         public async Task<BodyWeightRecord> GetBodyweightRecord(int id, int userId)
         {
-            var record = await _context.BodyWeightRecords.FirstOrDefaultAsync(r => r.Id == id && r.UserId == userId);
+            var record = await _context.BodyWeightRecords.AsNoTracking().FirstOrDefaultAsync(r => r.Id == id && r.UserId == userId);
             return record;
         }
 
@@ -50,14 +50,14 @@
 
             if (ascendingOrder == false)
             {
-                records = await _context.BodyWeightRecords
+                records = await _context.BodyWeightRecords.AsNoTracking()
                     .Where(record => record.UserId == userId)
                     .OrderByDescending(record => record.Date)
                     .ToArrayAsync();
             }
             else
             {
-                records = await _context.BodyWeightRecords
+                records = await _context.BodyWeightRecords.AsNoTracking()
                     .Where(record => record.UserId == userId)
                     .OrderBy(record => record.Date)
                     .ToArrayAsync();
@@ -121,7 +121,7 @@
         #region BodyWeightTarget
         public async Task<BodyWeightTarget> GetUserBodyweightTarget(int userId)
         {
-            var result = await _context.BodyWeightTargets.FirstOrDefaultAsync(target => target.UserId == userId);
+            var result = await _context.BodyWeightTargets.AsNoTracking().FirstOrDefaultAsync(target => target.UserId == userId);
             return result;
         }
 
@@ -193,7 +193,7 @@
 
         private async Task<bool> UserExists(int userId)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(r => r.Id == userId);
+            var user = await _context.Users.AsNoTracking().FirstOrDefaultAsync(r => r.Id == userId);
             return user != null;
         }
     }

@@ -62,13 +62,13 @@
 
         public async Task<FoodItem[]> GetAllFoodItems()
         {
-            FoodItem[] foodItems = await _context.FoodItems.ToArrayAsync();
+            FoodItem[] foodItems = await _context.FoodItems.AsNoTracking().ToArrayAsync();
             return foodItems;
         }
 
         public async Task<FoodItem> GetFoodItem(int id)
         {
-            var foodItem = await _context.FoodItems.FirstOrDefaultAsync(r => r.Id == id);
+            var foodItem = await _context.FoodItems.AsNoTracking().FirstOrDefaultAsync(r => r.Id == id);
             return foodItem;
         }
 
