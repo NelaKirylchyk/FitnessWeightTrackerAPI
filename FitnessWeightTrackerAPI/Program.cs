@@ -1,3 +1,4 @@
+using System.Configuration;
 using System.Text;
 using FitnessWeightTrackerAPI.Data;
 using FitnessWeightTrackerAPI.Filters;
@@ -25,15 +26,9 @@ builder.Services.AddCors(options =>
         });
 });
 
-builder.Services.AddControllers();
-
 builder.Services.AddControllers(options =>
 {
     options.Filters.Add<ValidateModelAttribute>();
-});
-
-builder.Services.AddControllers(options =>
-{
     options.Filters.Add<ValidationExceptionFilter>();
 });
 
@@ -89,7 +84,8 @@ builder.Services.AddTransient<IUserService, UserService>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
+builder.Services.Configure<JwtConfiguration>(builder.Configuration.GetSection("Jwt"));
 
 builder.Services.AddSwaggerGen(c =>
 {

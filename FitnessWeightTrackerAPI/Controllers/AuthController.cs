@@ -25,7 +25,8 @@ namespace FitnessWeightTrackerAPI.Controllers
         public IActionResult SignInWithGoogle()
         {
             var redirectUrl = Url.Action("GoogleResponse", "Auth");
-            var properties = new AuthenticationProperties { RedirectUri = $"https://localhost:7231{redirectUrl}" };
+
+            var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
 
             return Challenge(properties, GoogleDefaults.AuthenticationScheme);
         }

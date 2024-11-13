@@ -8,6 +8,7 @@ using FitnessWeightTrackerAPI.Models;
 using FitnessWeightTrackerAPI.Services.Helpers;
 using FitnessWeightTrackerAPI.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
 namespace FitnessWeightTrackerAPI.Services
@@ -15,18 +16,18 @@ namespace FitnessWeightTrackerAPI.Services
     public class UserService : IUserService
     {
         private readonly FitnessWeightTrackerDbContext _context;
-        private readonly IConfiguration _configuration;
         private readonly TokenValidationParameters _tokenValidationParameters;
+        private readonly JwtConfiguration _jwtConfig;
 
-        public UserService(FitnessWeightTrackerDbContext context, IConfiguration configuration)
+        public UserService(FitnessWeightTrackerDbContext context, IOptions<JwtConfiguration> jwtConfig)
         {
             _context = context;
-            _configuration = configuration;
+            _jwtConfig = jwtConfig.Value;
 
-            _tokenValidationParameters = CreateTokenValidationParameters(configuration);
+            _tokenValidationParameters = CreateTokenValidationParameters(_jwtConfig);
         }
 
-        private static TokenValidationParameters CreateTokenValidationParameters(IConfiguration configuration)
+        private static TokenValidationParameters CreateTokenValidationParameters(JwtConfiguration config)
         {
             return new TokenValidationParameters
             {
@@ -34,9 +35,9 @@ namespace FitnessWeightTrackerAPI.Services
                 ValidateAudience = true,
                 ValidateLifetime = true,
                 ValidateIssuerSigningKey = true,
-                ValidIssuer = configuration["Jwt:Issuer"],
-                ValidAudience = configuration["Jwt:Audience"],
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]!))
+                ValidIssuer = config.Issuer,
+                ValidAudience = config.Audience,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config.Key!))
             };
         }
 
@@ -104,11 +105,11 @@ namespace FitnessWeightTrackerAPI.Services
             };
 
             // Generate the JWT token
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtConfig.Key));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
             var token = new JwtSecurityToken(
-                issuer: _configuration["Jwt:Issuer"],
-                audience: _configuration["Jwt:Audience"],
+                issuer: _jwtConfig.Issuer,
+                audience: _jwtConfig.Audience,
                 claims: claims,
                 expires: DateTime.Now.AddDays(7),
                 signingCredentials: creds);
