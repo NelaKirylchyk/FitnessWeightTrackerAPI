@@ -15,6 +15,6 @@ namespace FitnessWeightTrackerAPI.Services.Interfaces
 
         Task<User> GetUserByEmailAsync(string email);
 
-        string GenerateUserJWTToken(User user);
+        string GenerateUserJWTToken(string userName, string email, string userId);
     }
 }

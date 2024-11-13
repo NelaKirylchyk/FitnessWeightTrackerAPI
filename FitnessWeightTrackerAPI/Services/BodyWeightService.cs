@@ -48,7 +48,7 @@ namespace FitnessWeightTrackerAPI.Services
         {
             BodyWeightRecord[] records = null;
 
-            if (ascendingOrder == false)
+            if (!ascendingOrder)
             {
                 records = await _context.BodyWeightRecords.AsNoTracking()
                     .Where(record => record.UserId == userId)
@@ -68,10 +68,9 @@ namespace FitnessWeightTrackerAPI.Services
 
         public async Task<BodyWeightRecord> UpdateBodyweightRecord(int id, int userId, BodyWeightRecordDTO record)
         {
-            var userExists = await UserExists(userId);
             var existingBodyWeightRecord = await _context.BodyWeightRecords.FirstOrDefaultAsync(t => t.UserId == userId && t.Id == id);
 
-            if (userExists && existingBodyWeightRecord != null)
+            if (existingBodyWeightRecord != null)
             {
                 existingBodyWeightRecord.Weight = record.Weight;
                 existingBodyWeightRecord.Date = record.Date;
@@ -128,11 +127,10 @@ namespace FitnessWeightTrackerAPI.Services
         public async Task<BodyWeightTarget> AddBodyweightTarget(int userId, BodyWeightTargetDTO targetWeight)
         {
             var userExists = await UserExists(userId);
-            var anyUserTargetExists = await _context.BodyWeightTargets.AnyAsync(t => t.UserId == userId);
 
             BodyWeightTarget? entity = null;
 
-            if (userExists && !anyUserTargetExists)
+            if (!userExists)
             {
                 entity = new BodyWeightTarget()
                 {
@@ -156,10 +154,9 @@ namespace FitnessWeightTrackerAPI.Services
 
         public async Task<BodyWeightTarget> UpdateBodyweightTarget(int id, int userId, BodyWeightTargetDTO targetWeight)
         {
-            var userExists = await UserExists(userId);
             var existingBodyWeightTarget = await _context.BodyWeightTargets.FirstOrDefaultAsync(t => t.UserId == userId && t.Id == id);
 
-            if (userExists && existingBodyWeightTarget != null)
+            if (existingBodyWeightTarget != null)
             {
                 existingBodyWeightTarget.TargetWeight = targetWeight.TargetWeight;
                 existingBodyWeightTarget.TargetDate = targetWeight.TargetDate;

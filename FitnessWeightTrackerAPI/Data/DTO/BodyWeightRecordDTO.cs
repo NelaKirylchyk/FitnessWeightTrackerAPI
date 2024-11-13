@@ -9,7 +9,7 @@ namespace FitnessWeightTrackerAPI.Data.DTO
         public float Weight { get; set; }
 
         [DataType(DataType.Date)]
-        [DateRangeValidation]
+        [DateBeforeNowValidation]
         public DateTime Date { get; set; }
     }
 }

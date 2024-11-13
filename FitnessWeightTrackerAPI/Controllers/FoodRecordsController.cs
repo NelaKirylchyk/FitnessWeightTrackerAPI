@@ -15,9 +15,9 @@ namespace FitnessWeightTrackerAPI.Controllers
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class FoodRecordsController : ControllerBase
     {
-        private INutritionService _nutritionService;
+        private IFoodRecordService _nutritionService;
 
-        public FoodRecordsController(INutritionService nutritionService)
+        public FoodRecordsController(IFoodRecordService nutritionService)
         {
             _nutritionService = nutritionService;
         }

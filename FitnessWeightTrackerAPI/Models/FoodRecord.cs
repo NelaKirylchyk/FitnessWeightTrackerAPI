@@ -8,7 +8,6 @@ namespace FitnessWeightTrackerAPI.Models
     {
         public int Id { get; set; }
 
-        [Required]
         [ForeignKey("FoodItem")]
         public int FoodItemId { get; set; }
 
@@ -19,11 +18,9 @@ namespace FitnessWeightTrackerAPI.Models
 
         public User User { get; set; }
 
-        [Required]
         [Range(0.0, 10000.0, ErrorMessage = "Quantity must be a positive value.")]
         public float Quantity { get; set; }
 
-        [Required]
         [DataType(DataType.Date)]
         [ConsumptionDateValidation]
         public DateTime ConsumptionDate { get; set; }

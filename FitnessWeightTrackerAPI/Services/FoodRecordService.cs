@@ -8,11 +8,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FitnessWeightTrackerAPI.Services
 {
-    public class NutritionService : INutritionService
+    public class FoodRecordService : IFoodRecordService
     {
         private readonly FitnessWeightTrackerDbContext _context;
 
-        public NutritionService(FitnessWeightTrackerDbContext context)
+        public FoodRecordService(FitnessWeightTrackerDbContext context)
         {
             _context = context;
         }
@@ -46,37 +46,6 @@ namespace FitnessWeightTrackerAPI.Services
             return entity;
         }
 
-        public async Task<NutritionTarget> AddNutritionTarget(int userId, NutritionTargetDTO target)
-        {
-            var userExists = await UserExists(userId);
-            var anyUserTargetExists = await _context.NutritionTargets.AnyAsync(t => t.UserId == userId);
-
-            NutritionTarget? entity = null;
-
-            if (userExists && !anyUserTargetExists)
-            {
-                entity = new NutritionTarget()
-                {
-                    UserId = userId,
-                    DailyCalories = target.DailyCalories,
-                    DailyCarbonohydrates = target.DailyCarbonohydrates,
-                    DailyFat = target.DailyFat,
-                    DailyProtein = target.DailyProtein
-                };
-
-                // Validate entity
-                if (!ValidationHelper.TryValidateObject(entity, out var validationResults))
-                {
-                    throw new CustomValidationException(validationResults);
-                }
-
-                _context.NutritionTargets.Add(entity);
-                await _context.SaveChangesAsync();
-            }
-
-            return entity;
-        }
-
         public async Task DeleteAllFoodRecords(int userId)
         {
             FoodRecord[] existingRecords = await _context.FoodRecords.Where(x => x.UserId == userId).ToArrayAsync();
@@ -100,7 +69,7 @@ namespace FitnessWeightTrackerAPI.Services
         {
             FoodRecord[] records = null;
 
-            if (ascendingOrder == false)
+            if (!ascendingOrder)
             {
                 records = await _context.FoodRecords.AsNoTracking()
                     .Where(record => record.UserId == userId)
@@ -118,27 +87,9 @@ namespace FitnessWeightTrackerAPI.Services
             return records;
         }
 
-        public async Task<bool> DeleteNutritionTarget(int id, int userId)
-        {
-            var target = await _context.NutritionTargets.FirstOrDefaultAsync(t => t.UserId == userId && t.Id == id);
-            if (target != null)
-            {
-                _context.NutritionTargets.Remove(target);
-                await _context.SaveChangesAsync();
-            }
-
-            return target != null;
-        }
-
         public async Task<FoodRecord> GetFoodRecord(int id, int userId)
         {
             var record = await _context.FoodRecords.AsNoTracking().FirstOrDefaultAsync(r => r.Id == id && r.UserId == userId);
-            return record;
-        }
-
-        public async Task<NutritionTarget> GetNutritionTarget(int userId)
-        {
-            var record = await _context.NutritionTargets.AsNoTracking().FirstOrDefaultAsync(r => r.UserId == userId);
             return record;
         }
 
@@ -164,31 +115,6 @@ namespace FitnessWeightTrackerAPI.Services
             }
 
             return foodRecord;
-        }
-
-        public async Task<NutritionTarget> UpdateNutritionTarget(int id, int userId, NutritionTargetDTO target)
-        {
-            var userExists = await UserExists(userId);
-            var nutritionTarget = await _context.NutritionTargets.FirstOrDefaultAsync(t => t.UserId == userId && t.Id == id);
-
-            if (userExists && nutritionTarget != null)
-            {
-                nutritionTarget.DailyProtein = target.DailyProtein;
-                nutritionTarget.DailyFat = target.DailyFat;
-                nutritionTarget.DailyCarbonohydrates = target.DailyCarbonohydrates;
-                nutritionTarget.DailyCalories = target.DailyCalories;
-
-                // Validate updated entity
-                if (!ValidationHelper.TryValidateObject(nutritionTarget, out var validationResults))
-                {
-                    throw new CustomValidationException(validationResults);
-                }
-
-                _context.NutritionTargets.Update(nutritionTarget);
-                await _context.SaveChangesAsync();
-            }
-
-            return nutritionTarget;
         }
 
         private async Task<bool> UserExists(int userId)

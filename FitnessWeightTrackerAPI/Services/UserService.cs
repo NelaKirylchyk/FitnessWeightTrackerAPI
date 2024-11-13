@@ -18,26 +18,25 @@ namespace FitnessWeightTrackerAPI.Services
         private readonly FitnessWeightTrackerDbContext _context;
         private readonly TokenValidationParameters _tokenValidationParameters;
         private readonly JwtConfiguration _jwtConfig;
+        private SecurityKey _issuerSigningKey;
+        private SigningCredentials _signingCredentials;
 
         public UserService(FitnessWeightTrackerDbContext context, IOptions<JwtConfiguration> jwtConfig)
         {
             _context = context;
             _jwtConfig = jwtConfig.Value;
+            _issuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtConfig.Key));
+            _signingCredentials = new SigningCredentials(_issuerSigningKey, SecurityAlgorithms.HmacSha256);
 
-            _tokenValidationParameters = CreateTokenValidationParameters(_jwtConfig);
-        }
-
-        private static TokenValidationParameters CreateTokenValidationParameters(JwtConfiguration config)
-        {
-            return new TokenValidationParameters
+            _tokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuer = true,
                 ValidateAudience = true,
                 ValidateLifetime = true,
                 ValidateIssuerSigningKey = true,
-                ValidIssuer = config.Issuer,
-                ValidAudience = config.Audience,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config.Key!))
+                ValidIssuer = _jwtConfig.Issuer,
+                ValidAudience = _jwtConfig.Audience,
+                IssuerSigningKey = _issuerSigningKey
             };
         }
 
@@ -90,29 +89,22 @@ namespace FitnessWeightTrackerAPI.Services
             return existingUser != null;
         }
 
-        public string GenerateUserJWTToken(User user)
+        public string GenerateUserJWTToken(string userName, string email, string userId)
         {
-            if (user is null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
-
             var claims = new List<Claim>
             {
-                new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                new Claim(JwtRegisteredClaimNames.Name, user.UserName),
-                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString())
+                new Claim(JwtRegisteredClaimNames.Email, email),
+                new Claim(JwtRegisteredClaimNames.Name, userName),
+                new Claim(JwtRegisteredClaimNames.Sub, userId)
             };
 
             // Generate the JWT token
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtConfig.Key));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
             var token = new JwtSecurityToken(
                 issuer: _jwtConfig.Issuer,
                 audience: _jwtConfig.Audience,
                 claims: claims,
                 expires: DateTime.Now.AddDays(7),
-                signingCredentials: creds);
+                signingCredentials: _signingCredentials);
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }

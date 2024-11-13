@@ -62,7 +62,7 @@ namespace FitnessWeightTrackerAPI.Controllers
                 await _userService.RegisterUserAsync(newUser, isExternalUser: true);
             }
 
-            var jwtToken = _userService.GenerateUserJWTToken(user);
+            var jwtToken = _userService.GenerateUserJWTToken(user.UserName, user.Email, user.Id.ToString());
             return Ok(new { token = jwtToken });
         }
     }

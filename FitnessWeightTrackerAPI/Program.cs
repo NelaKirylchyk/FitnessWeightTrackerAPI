@@ -79,7 +79,8 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddTransient<IBodyWeightService, BodyWeightService>();
 builder.Services.AddTransient<IFoodItemService, FoodItemService>();
-builder.Services.AddTransient<INutritionService, NutritionService>();
+builder.Services.AddTransient<IFoodRecordService, FoodRecordService>();
+builder.Services.AddTransient<INutritionTargetService, NutritionTargetService>();
 builder.Services.AddTransient<IUserService, UserService>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

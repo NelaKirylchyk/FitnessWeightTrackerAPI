@@ -44,7 +44,7 @@ namespace FitnessWeightTrackerAPI.Controllers
                 return BadRequest("Invalid credentials");
             }
 
-            var jwtToken = _userService.GenerateUserJWTToken(user);
+            var jwtToken = _userService.GenerateUserJWTToken(user.UserName, user.Email, user.Id.ToString());
 
             return CreatedAtAction(nameof(LoginUsers), new Dictionary<string, string> { { "jwtBearer", jwtToken } });
         }
