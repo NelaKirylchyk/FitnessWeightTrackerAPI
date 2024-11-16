@@ -1,9 +1,9 @@
-﻿using System.Security.Claims;
-using FitnessWeightTrackerAPI.Data.DTO;
+﻿using FitnessWeightTrackerAPI.Data.DTO;
 using FitnessWeightTrackerAPI.Filters;
 using FitnessWeightTrackerAPI.Models;
 using FitnessWeightTrackerAPI.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FitnessWeightTrackerAPI.Controllers
@@ -15,17 +15,21 @@ namespace FitnessWeightTrackerAPI.Controllers
     public class FoodRecordsController : ControllerBase
     {
         private IFoodRecordService _nutritionService;
+        private UserManager<FitnessUser> _userManager;
 
-        public FoodRecordsController(IFoodRecordService nutritionService)
+        public FoodRecordsController(
+            IFoodRecordService nutritionService,
+            UserManager<FitnessUser> userManager)
         {
             _nutritionService = nutritionService;
+            _userManager = userManager;
         }
 
         // GET: api/FoodRecords
         [HttpGet]
         public async Task<ActionResult<IEnumerable<FoodRecord>>> GetFoodRecords()
         {
-            var userId = GetUserIdFromClaim();
+            var userId = await GetUserIdAsync();
             return await _nutritionService.GetAllFoodRecords(userId);
         }
 
@@ -33,7 +37,7 @@ namespace FitnessWeightTrackerAPI.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<FoodRecord>> GetFoodRecords(int id)
         {
-            var userId = GetUserIdFromClaim();
+            var userId = await GetUserIdAsync();
             var foodRecord = await _nutritionService.GetFoodRecord(id, userId);
 
             if (foodRecord == null)
@@ -48,7 +52,7 @@ namespace FitnessWeightTrackerAPI.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutFoodRecords(int id, FoodRecordDTO foodRecord)
         {
-            var userId = GetUserIdFromClaim();
+            var userId = await GetUserIdAsync();
             await _nutritionService.UpdateFoodRecord(id, userId, foodRecord);
 
             return NoContent();
@@ -58,7 +62,7 @@ namespace FitnessWeightTrackerAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<FoodRecord>> PostFoodRecords(FoodRecordDTO foodRecord)
         {
-            var userId = GetUserIdFromClaim();
+            var userId = await GetUserIdAsync();
             var created = await _nutritionService.AddFoodRecord(foodRecord, userId);
 
             if (created == null)
@@ -73,16 +77,16 @@ namespace FitnessWeightTrackerAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteFoodRecords(int id)
         {
-            var userId = GetUserIdFromClaim();
+            var userId = await GetUserIdAsync();
             await _nutritionService.DeleteFoodRecord(id, userId);
 
             return NoContent();
         }
 
-        private int GetUserIdFromClaim()
+        private async Task<int> GetUserIdAsync()
         {
-            var userIdClaim = this.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
-            return int.Parse(userIdClaim.Value);
+            var user = await _userManager.GetUserAsync(HttpContext.User);
+            return user.Id;
         }
     }
 }

@@ -7,10 +7,10 @@ namespace FitnessWeightTrackerAPI.Models
     {
         public int Id { get; set; }
 
-        [ForeignKey("User")]
+        [ForeignKey("FitnessUser")]
         public int UserId { get; set; }
 
-        public User User { get; set; }
+        public FitnessUser User { get; set; }
 
         [Range(0, 10000, ErrorMessage = "Daily calories must be between 0 and 10,000.")]
         public int DailyCalories { get; set; }

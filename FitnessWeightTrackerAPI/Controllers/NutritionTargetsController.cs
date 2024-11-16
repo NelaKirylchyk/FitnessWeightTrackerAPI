@@ -1,9 +1,9 @@
-﻿using System.Security.Claims;
-using FitnessWeightTrackerAPI.Data.DTO;
+﻿using FitnessWeightTrackerAPI.Data.DTO;
 using FitnessWeightTrackerAPI.Filters;
 using FitnessWeightTrackerAPI.Models;
 using FitnessWeightTrackerAPI.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FitnessWeightTrackerAPI.Controllers
@@ -15,17 +15,21 @@ namespace FitnessWeightTrackerAPI.Controllers
     public class NutritionTargetsController : ControllerBase
     {
         private INutritionTargetService _nutritionService;
+        private UserManager<FitnessUser> _userManager;
 
-        public NutritionTargetsController(INutritionTargetService nutritionService)
+        public NutritionTargetsController(
+            INutritionTargetService nutritionService,
+            UserManager<FitnessUser> userManager)
         {
             _nutritionService = nutritionService;
+            _userManager = userManager;
         }
 
         // GET: api/NutritionTargets/5
         [HttpGet]
         public async Task<ActionResult<NutritionTarget>> GetNutritionTargets()
         {
-            var userId = GetUserIdFromClaim();
+            var userId = await GetUserIdAsync();
             return await _nutritionService.GetNutritionTarget(userId);
         }
 
@@ -33,7 +37,7 @@ namespace FitnessWeightTrackerAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<NutritionTarget>> PostNutritionTargets(NutritionTargetDTO nutriotionTarget)
         {
-            var userId = GetUserIdFromClaim();
+            var userId = await GetUserIdAsync();
             var entity = await _nutritionService.AddNutritionTarget(userId, nutriotionTarget);
 
             if (entity == null)
@@ -48,7 +52,7 @@ namespace FitnessWeightTrackerAPI.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutNutritionTargets(int id, NutritionTargetDTO nutriotionTarget)
         {
-            var userId = GetUserIdFromClaim();
+            var userId = await GetUserIdAsync();
             await _nutritionService.UpdateNutritionTarget(id, userId, nutriotionTarget);
             return NoContent();
         }
@@ -57,16 +61,16 @@ namespace FitnessWeightTrackerAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteNutritionTargets(int id)
         {
-            var userId = GetUserIdFromClaim();
+            var userId = await GetUserIdAsync();
             await _nutritionService.DeleteNutritionTarget(id, userId);
 
             return NoContent();
         }
 
-        private int GetUserIdFromClaim()
+        private async Task<int> GetUserIdAsync()
         {
-            var userIdClaim = this.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
-            return int.Parse(userIdClaim.Value);
+            var user = await _userManager.GetUserAsync(HttpContext.User);
+            return user.Id;
         }
     }
 }

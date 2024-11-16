@@ -33,14 +33,15 @@ namespace FitnessWeightTrackerAPI.Test
 
             for (int i = 1; i <= 10; i++)
             {
-                var user = new User
-                {
-                    Name = $"User{i}",
-                    Surname = $"Surname{i}",
-                    Gender = random.Next(0, 2)
-                };
+                // TODO: Apply ASP.NET Identity
+                //var user = new User
+                //{
+                //    Name = $"User{i}",
+                //    Surname = $"Surname{i}",
+                //    Gender = random.Next(0, 2)
+                //};
 
-                context.Users.Add(user);
+                //context.Users.Add(user);
                 context.SaveChanges();
 
                 int weightRecordCount = random.Next(1, 11); // 1 to 10 weight records

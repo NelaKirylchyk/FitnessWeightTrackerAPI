@@ -1,9 +1,9 @@
-﻿using System.Security.Claims;
-using FitnessWeightTrackerAPI.Data.DTO;
+﻿using FitnessWeightTrackerAPI.Data.DTO;
 using FitnessWeightTrackerAPI.Filters;
 using FitnessWeightTrackerAPI.Models;
 using FitnessWeightTrackerAPI.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FitnessWeightTrackerAPI.Controllers
@@ -15,17 +15,21 @@ namespace FitnessWeightTrackerAPI.Controllers
     public class BodyWeightTargetsController : ControllerBase
     {
         private IBodyWeightTargetService _bodyWeightTargetService;
+        private UserManager<FitnessUser> _userManager;
 
-        public BodyWeightTargetsController(IBodyWeightTargetService bodyWeightService)
+        public BodyWeightTargetsController(
+            IBodyWeightTargetService bodyWeightService,
+            UserManager<FitnessUser> userManager)
         {
             _bodyWeightTargetService = bodyWeightService;
+            _userManager = userManager;
         }
 
         // GET: api/BodyWeightTargets/5
         [HttpGet]
         public async Task<ActionResult<BodyWeightTarget>> GetBodyWeightTargets()
         {
-            var userId = GetUserIdFromClaim();
+            var userId = await GetUserIdAsync();
 
             return await _bodyWeightTargetService.GetUserBodyweightTarget(userId);
         }
@@ -35,7 +39,7 @@ namespace FitnessWeightTrackerAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<BodyWeightTarget>> PostBodyWeightTargets(BodyWeightTargetDTO bodyWeightTarget)
         {
-            var userId = GetUserIdFromClaim();
+            var userId = await GetUserIdAsync();
             var entity = await _bodyWeightTargetService.AddBodyweightTarget(userId, bodyWeightTarget);
 
             if (entity == null)
@@ -50,7 +54,7 @@ namespace FitnessWeightTrackerAPI.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutBodyWeightTargets(int id, BodyWeightTargetDTO bodyWeightTarget)
         {
-            var userId = GetUserIdFromClaim();
+            var userId = await GetUserIdAsync();
             await _bodyWeightTargetService.UpdateBodyweightTarget(id, userId, bodyWeightTarget);
 
             return NoContent();
@@ -60,16 +64,16 @@ namespace FitnessWeightTrackerAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteBodyWeightTargets(int id)
         {
-            var userId = GetUserIdFromClaim();
+            var userId = await GetUserIdAsync();
             await _bodyWeightTargetService.DeleteBodyweightTarget(id, userId);
 
             return NoContent();
         }
 
-        private int GetUserIdFromClaim()
+        private async Task<int> GetUserIdAsync()
         {
-            var userIdClaim = this.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
-            return int.Parse(userIdClaim.Value);
+            var user = await _userManager.GetUserAsync(HttpContext.User);
+            return user.Id;
         }
     }
 }

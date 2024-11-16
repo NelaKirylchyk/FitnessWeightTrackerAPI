@@ -1,9 +1,9 @@
-﻿using System.Security.Claims;
-using FitnessWeightTrackerAPI.Data.DTO;
+﻿using FitnessWeightTrackerAPI.Data.DTO;
 using FitnessWeightTrackerAPI.Filters;
 using FitnessWeightTrackerAPI.Models;
 using FitnessWeightTrackerAPI.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FitnessWeightTrackerAPI.Controllers
@@ -15,17 +15,21 @@ namespace FitnessWeightTrackerAPI.Controllers
     public class BodyWeightRecordsController : ControllerBase
     {
         private IBodyWeightService _bodyWeightService;
+        private UserManager<FitnessUser> _userManager;
 
-        public BodyWeightRecordsController(IBodyWeightService bodyWeightService)
+        public BodyWeightRecordsController(
+            IBodyWeightService bodyWeightService,
+            UserManager<FitnessUser> userManager)
         {
             _bodyWeightService = bodyWeightService;
+            _userManager = userManager;
         }
 
         // GET: api/BodyWeightRecords
         [HttpGet]
         public async Task<ActionResult<IEnumerable<BodyWeightRecord>>> GetBodyWeightRecords()
         {
-            var userId = GetUserIdFromClaim();
+            var userId = await GetUserId();
 
             return await _bodyWeightService.GetAllUserBodyweightRecords(userId);
         }
@@ -34,7 +38,7 @@ namespace FitnessWeightTrackerAPI.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<BodyWeightRecord>> GetBodyWeightRecords(int id)
         {
-            var userId = GetUserIdFromClaim();
+            var userId = await GetUserId();
 
             var bodyWeightRecord = await _bodyWeightService.GetBodyweightRecord(id, userId);
 
@@ -51,7 +55,7 @@ namespace FitnessWeightTrackerAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<BodyWeightRecord>> PostBodyWeightRecords(BodyWeightRecordDTO bodyWeightRecord)
         {
-            var userId = GetUserIdFromClaim();
+            var userId = await GetUserId();
 
             var created = await _bodyWeightService.AddBodyweightRecord(userId, bodyWeightRecord);
 
@@ -72,7 +76,7 @@ namespace FitnessWeightTrackerAPI.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutBodyWeightRecords(int id, BodyWeightRecordDTO bodyWeightRecord)
         {
-            var userId = GetUserIdFromClaim();
+            var userId = await GetUserId();
 
             await _bodyWeightService.UpdateBodyweightRecord(id, userId, bodyWeightRecord);
 
@@ -83,17 +87,17 @@ namespace FitnessWeightTrackerAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteBodyWeightRecords(int id)
         {
-            var userId = GetUserIdFromClaim();
+            var userId = await GetUserId();
 
             await _bodyWeightService.DeleteBodyweightRecord(id, userId);
 
             return NoContent();
         }
 
-        private int GetUserIdFromClaim()
+        private async Task<int> GetUserId()
         {
-            var userIdClaim = this.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
-            return int.Parse(userIdClaim.Value);
+            var user = await _userManager.GetUserAsync(HttpContext.User);
+            return user.Id;
         }
     }
 }

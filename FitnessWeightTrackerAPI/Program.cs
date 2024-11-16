@@ -11,19 +11,6 @@ using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var myAllowSpecificOrigins = "_myAllowSpecificOrigins";
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy(
-        name: myAllowSpecificOrigins,
-        policy =>
-        {
-            policy.WithOrigins("https://localhost:7231")
-            .AllowAnyHeader()
-            .AllowAnyMethod();
-        });
-});
-
 builder.Services.AddControllers(options =>
 {
     options.Filters.Add<ValidateModelAttribute>();
@@ -56,11 +43,11 @@ builder.Services.AddAuthentication(options =>
         };
     });
 
-builder.Services.AddIdentityCore<MyIdentityUser>()
-    .AddRoles<MyIdentityUserRole>()
+builder.Services.AddIdentityCore<FitnessUser>()
+    .AddRoles<FitnessUserRole>()
     .AddEntityFrameworkStores<FitnessWeightTrackerDbContext>()
     .AddDefaultTokenProviders()
-    .AddSignInManager<SignInManager<MyIdentityUser>>()
+    .AddSignInManager<SignInManager<FitnessUser>>()
     .AddApiEndpoints();
 
 builder.Services.AddAuthorization();
@@ -104,8 +91,6 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-app.UseCors(myAllowSpecificOrigins);
-
 app.UseRouting();
 
 // Configure the HTTP request pipeline.
@@ -124,7 +109,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.MapIdentityApi<MyIdentityUser>();
+app.MapIdentityApi<FitnessUser>();
 
 app.Run();
 

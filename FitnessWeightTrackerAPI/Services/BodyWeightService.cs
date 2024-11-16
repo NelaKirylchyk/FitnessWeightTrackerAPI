@@ -99,6 +99,7 @@ namespace FitnessWeightTrackerAPI.Services
 
         #endregion
 
+
         private async Task<bool> UserExists(int userId)
         {
             var user = await _context.Users.AsNoTracking().FirstOrDefaultAsync(r => r.Id == userId);

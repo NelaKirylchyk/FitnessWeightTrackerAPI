@@ -8,10 +8,10 @@ namespace FitnessWeightTrackerAPI.Models
     {
         public int Id { get; set; }
 
-        [ForeignKey("User")]
+        [ForeignKey("FitnessUser")]
         public int UserId { get; set; }
 
-        public User User { get; set; }
+        public FitnessUser User { get; set; }
 
         [DataType(DataType.Date)]
         [DateBeforeNowValidation]

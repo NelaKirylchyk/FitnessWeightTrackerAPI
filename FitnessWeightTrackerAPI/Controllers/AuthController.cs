@@ -13,13 +13,13 @@ namespace FitnessWeightTrackerAPI.Controllers
     [AllowAnonymous]
     public class AuthController : ControllerBase
     {
-        private readonly UserManager<MyIdentityUser> _userManager;
-        private readonly SignInManager<MyIdentityUser> _signInManager;
+        private readonly UserManager<FitnessUser> _userManager;
+        private readonly SignInManager<FitnessUser> _signInManager;
         private readonly IConfiguration _configuration;
 
         public AuthController(
-            UserManager<MyIdentityUser> userManager,
-            SignInManager<MyIdentityUser> signInManager,
+            UserManager<FitnessUser> userManager,
+            SignInManager<FitnessUser> signInManager,
             IConfiguration configuration)
         {
             _userManager = userManager;
@@ -57,7 +57,11 @@ namespace FitnessWeightTrackerAPI.Controllers
 
             if (user == null)
             {
-                user = new MyIdentityUser { UserName = email, Email = email };
+                user = new FitnessUser
+                {
+                    UserName = email,
+                    Email = email
+                };
                 var res = await _userManager.CreateAsync(user);
 
                 if (!res.Succeeded)
