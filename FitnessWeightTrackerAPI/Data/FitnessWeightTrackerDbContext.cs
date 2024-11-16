@@ -1,9 +1,10 @@
 ﻿using FitnessWeightTrackerAPI.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace FitnessWeightTrackerAPI.Data
 {
-    public class FitnessWeightTrackerDbContext : DbContext
+    public class FitnessWeightTrackerDbContext : IdentityDbContext<MyIdentityUser, MyIdentityUserRole, int>
     {
         public FitnessWeightTrackerDbContext(DbContextOptions<FitnessWeightTrackerDbContext> options)
             : base(options)

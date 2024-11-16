@@ -1,14 +1,12 @@
-using System.Configuration;
-using System.Text;
 using FitnessWeightTrackerAPI.Data;
 using FitnessWeightTrackerAPI.Filters;
+using FitnessWeightTrackerAPI.Models;
 using FitnessWeightTrackerAPI.Services;
 using FitnessWeightTrackerAPI.Services.Interfaces;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.OAuth;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -37,13 +35,14 @@ builder.Services.AddDbContext<FitnessWeightTrackerDbContext>(opt => opt.UseSqlSe
 // Add services to the container.
 builder.Services.AddAuthentication(options =>
 {
-    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme; // This can be changed based on endpoint requirements
-    options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme; // Use Cookie scheme for sign-in
+    options.DefaultScheme = IdentityConstants.ApplicationScheme;
+    options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
+    options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+    options.DefaultSignInScheme = IdentityConstants.ApplicationScheme;
 })
-    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddGoogle(googleOptions =>
+    .AddCookie(IdentityConstants.ApplicationScheme)
+    .AddBearerToken(IdentityConstants.BearerScheme)
+    .AddGoogle(GoogleDefaults.AuthenticationScheme, googleOptions =>
     {
         googleOptions.ClientId = builder.Configuration["Google:ClientId"];
         googleOptions.ClientSecret = builder.Configuration["Google:ClientSecret"];
@@ -51,29 +50,18 @@ builder.Services.AddAuthentication(options =>
         {
             OnCreatingTicket = async context =>
             {
-                // Additional claims or token processing can be done here
                 var accessToken = context.AccessToken;
                 var userPrincipal = context.Principal;
-
-                // Save or process the access token as needed
             },
         };
-    })
-    .AddJwtBearer(jwtOptions =>
-    {
-        var key = Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]);
-
-        jwtOptions.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(key),
-        };
     });
+
+builder.Services.AddIdentityCore<MyIdentityUser>()
+    .AddRoles<MyIdentityUserRole>()
+    .AddEntityFrameworkStores<FitnessWeightTrackerDbContext>()
+    .AddDefaultTokenProviders()
+    .AddSignInManager<SignInManager<MyIdentityUser>>()
+    .AddApiEndpoints();
 
 builder.Services.AddAuthorization();
 
@@ -82,7 +70,6 @@ builder.Services.AddTransient<IBodyWeightTargetService, BodyWeightTargetService>
 builder.Services.AddTransient<IFoodItemService, FoodItemService>();
 builder.Services.AddTransient<IFoodRecordService, FoodRecordService>();
 builder.Services.AddTransient<INutritionTargetService, NutritionTargetService>();
-builder.Services.AddTransient<IUserService, UserService>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -136,6 +123,8 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapIdentityApi<MyIdentityUser>();
 
 app.Run();
 

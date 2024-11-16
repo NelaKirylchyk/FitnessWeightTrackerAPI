@@ -1,10 +1,9 @@
 ﻿using System.Security.Claims;
-using FitnessWeightTrackerAPI.Data.DTO;
 using FitnessWeightTrackerAPI.Models;
-using FitnessWeightTrackerAPI.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FitnessWeightTrackerAPI.Controllers
@@ -14,11 +13,18 @@ namespace FitnessWeightTrackerAPI.Controllers
     [AllowAnonymous]
     public class AuthController : ControllerBase
     {
-        private readonly IUserService _userService;
+        private readonly UserManager<MyIdentityUser> _userManager;
+        private readonly SignInManager<MyIdentityUser> _signInManager;
+        private readonly IConfiguration _configuration;
 
-        public AuthController(IUserService userService)
+        public AuthController(
+            UserManager<MyIdentityUser> userManager,
+            SignInManager<MyIdentityUser> signInManager,
+            IConfiguration configuration)
         {
-            _userService = userService;
+            _userManager = userManager;
+            _signInManager = signInManager;
+            _configuration = configuration;
         }
 
         [HttpGet("signin-google")]
@@ -34,36 +40,37 @@ namespace FitnessWeightTrackerAPI.Controllers
         [HttpGet("google-response")]
         public async Task<IActionResult> GoogleResponse()
         {
-            var result = await HttpContext.AuthenticateAsync(GoogleDefaults.AuthenticationScheme);
+            var result = await HttpContext.AuthenticateAsync(IdentityConstants.ApplicationScheme);
+
+            if (!result.Succeeded)
+            {
+                return BadRequest();
+            }
+
             if (result?.Principal == null)
             {
                 return Redirect("~/");
             }
 
             var email = result.Principal.FindFirstValue(ClaimTypes.Email);
-            User user = await _userService.GetUserByEmailAsync(email) ?? new User
-            {
-                UserName = email,
-                Email = email,
-                Name = result.Principal.FindFirstValue(ClaimTypes.GivenName) ?? email,
-                Surname = result.Principal.FindFirstValue(ClaimTypes.Surname) ?? email,
-            };
+            var user = await _userManager.FindByEmailAsync(email);
 
-            if (user.Id == 0)
+            if (user == null)
             {
-                var newUser = new RegistrationUserDTO()
+                user = new MyIdentityUser { UserName = email, Email = email };
+                var res = await _userManager.CreateAsync(user);
+
+                if (!res.Succeeded)
                 {
-                    Email = user.Email,
-                    UserName = user.UserName,
-                    Name = user.Name,
-                    Surname = user.Surname
-                };
-
-                await _userService.RegisterUserAsync(newUser, isExternalUser: true);
+                    return BadRequest(res.Errors);
+                }
             }
 
-            var jwtToken = _userService.GenerateUserJWTToken(user.UserName, user.Email, user.Id.ToString());
-            return Ok(new { token = jwtToken });
+            await _signInManager.SignInAsync(user, isPersistent: false);
+
+            var token = await _userManager.GenerateUserTokenAsync(user, TokenOptions.DefaultProvider, "jwt");
+
+            return Ok(new { Token = token });
         }
     }
 }
