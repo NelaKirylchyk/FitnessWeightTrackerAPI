@@ -22,12 +22,9 @@ builder.Services.AddDbContext<FitnessWeightTrackerDbContext>(opt => opt.UseSqlSe
 // Add services to the container.
 builder.Services.AddAuthentication(options =>
 {
-    options.DefaultScheme = IdentityConstants.ApplicationScheme;
-    options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
-    options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
-    options.DefaultSignInScheme = IdentityConstants.ApplicationScheme;
+    options.DefaultScheme = IdentityConstants.BearerScheme;
 })
-    .AddCookie(IdentityConstants.ApplicationScheme)
+    .AddCookie(IdentityConstants.ExternalScheme)
     .AddBearerToken(IdentityConstants.BearerScheme)
     .AddGoogle(GoogleDefaults.AuthenticationScheme, googleOptions =>
     {
@@ -39,8 +36,9 @@ builder.Services.AddAuthentication(options =>
             {
                 var accessToken = context.AccessToken;
                 var userPrincipal = context.Principal;
-            },
+            }
         };
+        googleOptions.SignInScheme = IdentityConstants.ExternalScheme;
     });
 
 builder.Services.AddIdentityCore<FitnessUser>()

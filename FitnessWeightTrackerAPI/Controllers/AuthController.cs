@@ -38,18 +38,13 @@ namespace FitnessWeightTrackerAPI.Controllers
         }
 
         [HttpGet("google-response")]
-        public async Task<IActionResult> GoogleResponse()
+        public async Task<IResult> GoogleResponse()
         {
-            var result = await HttpContext.AuthenticateAsync(IdentityConstants.ApplicationScheme);
+            var result = await HttpContext.AuthenticateAsync(IdentityConstants.ExternalScheme);
 
             if (!result.Succeeded)
             {
-                return BadRequest();
-            }
-
-            if (result?.Principal == null)
-            {
-                return Redirect("~/");
+                return TypedResults.Forbid();
             }
 
             var email = result.Principal.FindFirstValue(ClaimTypes.Email);
@@ -66,15 +61,14 @@ namespace FitnessWeightTrackerAPI.Controllers
 
                 if (!res.Succeeded)
                 {
-                    return BadRequest(res.Errors);
+                    return TypedResults.Problem(res.ToString(), statusCode: StatusCodes.Status401Unauthorized);
                 }
             }
 
+            _signInManager.AuthenticationScheme = IdentityConstants.BearerScheme;
             await _signInManager.SignInAsync(user, isPersistent: false);
 
-            var token = await _userManager.GenerateUserTokenAsync(user, TokenOptions.DefaultProvider, "jwt");
-
-            return Ok(new { Token = token });
+            return TypedResults.Empty;
         }
     }
 }
