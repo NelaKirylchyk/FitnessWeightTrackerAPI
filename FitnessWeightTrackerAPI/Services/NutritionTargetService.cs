@@ -4,8 +4,9 @@ using FitnessWeightTrackerAPI.Data.DTO;
 using FitnessWeightTrackerAPI.Models;
 using FitnessWeightTrackerAPI.Services.Helpers;
 using FitnessWeightTrackerAPI.Services.Interfaces;
-
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Distributed;
+using System.Text.Json;
 
 namespace FitnessWeightTrackerAPI.Services
 {
@@ -13,11 +14,13 @@ namespace FitnessWeightTrackerAPI.Services
     {
         private readonly FitnessWeightTrackerDbContext _context;
         private readonly ILogger<NutritionTargetService> _logger;
+        private readonly IDistributedCache _cache;
 
-        public NutritionTargetService(FitnessWeightTrackerDbContext context, ILogger<NutritionTargetService> logger)
+        public NutritionTargetService(FitnessWeightTrackerDbContext context, ILogger<NutritionTargetService> logger, IDistributedCache cache)
         {
             _context = context;
             _logger = logger;
+            _cache = cache;
         }
 
         public async Task<NutritionTarget> AddNutritionTarget(int userId, NutritionTargetDTO target)
@@ -46,6 +49,8 @@ namespace FitnessWeightTrackerAPI.Services
 
                 _context.NutritionTargets.Add(entity);
                 await _context.SaveChangesAsync();
+
+                await _cache.RemoveAsync($"NutritionTarget_{userId}"); // Invalidate cache
             }
 
             return entity;
@@ -54,11 +59,26 @@ namespace FitnessWeightTrackerAPI.Services
         public async Task DeleteNutritionTarget(int id, int userId)
         {
             await _context.NutritionTargets.Where(t => t.UserId == userId && t.Id == id).ExecuteDeleteAsync();
+
+            await _cache.RemoveAsync($"NutritionTarget_{userId}"); // Invalidate cache
         }
 
         public async Task<NutritionTarget> GetNutritionTarget(int userId)
         {
+            var cacheKey = $"NutritionTarget_{userId}";
+            var cachedRecord = await _cache.GetStringAsync(cacheKey);
+            if (cachedRecord != null)
+            {
+                return JsonSerializer.Deserialize<NutritionTarget>(cachedRecord);
+            }
+
             var record = await _context.NutritionTargets.AsNoTracking().FirstOrDefaultAsync(r => r.UserId == userId);
+
+            if (record != null)
+            {
+                await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(record));
+            }
+
             return record;
         }
 
@@ -75,6 +95,8 @@ namespace FitnessWeightTrackerAPI.Services
                 .SetProperty(b => b.DailyFat, target.DailyFat)
                 .SetProperty(b => b.DailyCarbonohydrates, target.DailyCarbonohydrates)
                 .SetProperty(b => b.DailyCalories, target.DailyCalories));
+
+            await _cache.RemoveAsync($"NutritionTarget_{userId}"); // Invalidate cache
         }
 
         private async Task<bool> UserExists(int userId)

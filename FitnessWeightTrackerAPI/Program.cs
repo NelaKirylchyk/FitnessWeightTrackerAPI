@@ -12,10 +12,9 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//// Configure logging provider
-//builder.Logging.ClearProviders(); // Optional: Clears default loggingproviders
-//builder.Logging.AddConsole(); // Adds console logging provider
-//builder.Logging.AddDebug(); // Adds Debug window logging provider
+// Configure Redis
+builder.Services.AddStackExchangeRedisCache(
+    options => { options.Configuration = builder.Configuration.GetConnectionString("Redis"); });
 
 var logger = new LoggerConfiguration()
   .ReadFrom.Configuration(builder.Configuration)
