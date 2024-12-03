@@ -11,10 +11,12 @@ namespace FitnessWeightTrackerAPI.Services
     public class BodyWeightTargetService : IBodyWeightTargetService
     {
         private readonly FitnessWeightTrackerDbContext _context;
+        private readonly ILogger<BodyWeightTargetService> _logger;
 
-        public BodyWeightTargetService(FitnessWeightTrackerDbContext context)
+        public BodyWeightTargetService(FitnessWeightTrackerDbContext context, ILogger<BodyWeightTargetService> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         public async Task<BodyWeightTarget> GetUserBodyweightTarget(int userId)
@@ -46,6 +48,7 @@ namespace FitnessWeightTrackerAPI.Services
 
                 _context.BodyWeightTargets.Add(entity);
                 await _context.SaveChangesAsync();
+                _logger.LogInformation("BodyWeightTarget was added.");
             }
 
             return entity;
@@ -55,17 +58,20 @@ namespace FitnessWeightTrackerAPI.Services
         {
             if (!ValidationHelper.TryValidateObject(targetRecord, out var validationResults))
             {
+                _logger.LogError("Validation Error while updating BodyWeightTarget.");
                 throw new CustomValidationException(validationResults);
             }
 
             await _context.BodyWeightTargets.Where(t => t.UserId == userId && t.Id == id)
                 .ExecuteUpdateAsync(setters => setters.SetProperty(b => b.TargetWeight, targetRecord.TargetWeight)
                 .SetProperty(b => b.TargetDate, targetRecord.TargetDate));
+            _logger.LogInformation("BodyWeightTarget was updated.");
         }
 
         public async Task DeleteBodyweightTarget(int id, int userId)
         {
             await _context.BodyWeightTargets.Where(t => t.UserId == userId && t.Id == id).ExecuteDeleteAsync();
+            _logger.LogInformation("BodyWeightTarget was deleted.");
         }
 
         private async Task<bool> UserExists(int userId)

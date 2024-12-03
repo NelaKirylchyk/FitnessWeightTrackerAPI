@@ -8,8 +8,35 @@ using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+//// Configure logging provider
+//builder.Logging.ClearProviders(); // Optional: Clears default loggingproviders
+//builder.Logging.AddConsole(); // Adds console logging provider
+//builder.Logging.AddDebug(); // Adds Debug window logging provider
+
+var logger = new LoggerConfiguration()
+  .ReadFrom.Configuration(builder.Configuration)
+  .Enrich.FromLogContext()
+  .CreateLogger();
+
+builder.Logging.ClearProviders();
+builder.Logging.AddSerilog(logger);
+
+var myAllowSpecificOrigins = "_myAllowSpecificOrigins";
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(
+        name: myAllowSpecificOrigins,
+        policy =>
+        {
+            policy.WithOrigins("https://localhost:7231")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+        });
+});
 
 builder.Services.AddControllers(options =>
 {
@@ -59,8 +86,6 @@ builder.Services.AddTransient<INutritionTargetService, NutritionTargetService>()
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 
-builder.Services.Configure<JwtConfiguration>(builder.Configuration.GetSection("Jwt"));
-
 builder.Services.AddSwaggerGen(c =>
 {
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
@@ -101,6 +126,8 @@ if (app.Environment.IsDevelopment())
 app.UseStaticFiles();
 
 app.UseHttpsRedirection();
+
+app.UseCors(myAllowSpecificOrigins);
 
 app.UseAuthentication();
 app.UseAuthorization();

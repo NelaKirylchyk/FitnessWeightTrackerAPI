@@ -12,10 +12,12 @@ namespace FitnessWeightTrackerAPI.Services
     public class NutritionTargetService : INutritionTargetService
     {
         private readonly FitnessWeightTrackerDbContext _context;
+        private readonly ILogger<NutritionTargetService> _logger;
 
-        public NutritionTargetService(FitnessWeightTrackerDbContext context)
+        public NutritionTargetService(FitnessWeightTrackerDbContext context, ILogger<NutritionTargetService> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         public async Task<NutritionTarget> AddNutritionTarget(int userId, NutritionTargetDTO target)

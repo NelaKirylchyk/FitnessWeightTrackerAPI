@@ -16,15 +16,18 @@ namespace FitnessWeightTrackerAPI.Controllers
         private readonly UserManager<FitnessUser> _userManager;
         private readonly SignInManager<FitnessUser> _signInManager;
         private readonly IConfiguration _configuration;
+        private readonly ILogger<AuthController> _logger;
 
         public AuthController(
             UserManager<FitnessUser> userManager,
             SignInManager<FitnessUser> signInManager,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            ILogger<AuthController> logger)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _configuration = configuration;
+            _logger = logger;
         }
 
         [HttpGet("signin-google")]
@@ -44,6 +47,7 @@ namespace FitnessWeightTrackerAPI.Controllers
 
             if (!result.Succeeded)
             {
+                _logger.LogInformation("Authentication was not successful.");
                 return TypedResults.Forbid();
             }
 
@@ -61,12 +65,14 @@ namespace FitnessWeightTrackerAPI.Controllers
 
                 if (!res.Succeeded)
                 {
+                    _logger.LogInformation("A problem while registering a new user.");
                     return TypedResults.Problem(res.ToString(), statusCode: StatusCodes.Status401Unauthorized);
                 }
             }
 
             _signInManager.AuthenticationScheme = IdentityConstants.BearerScheme;
             await _signInManager.SignInAsync(user, isPersistent: false);
+            _logger.LogInformation("Authentication was successful.");
 
             return TypedResults.Empty;
         }

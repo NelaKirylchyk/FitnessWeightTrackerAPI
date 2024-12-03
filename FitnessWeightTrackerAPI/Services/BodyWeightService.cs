@@ -5,17 +5,18 @@ using FitnessWeightTrackerAPI.Models;
 using FitnessWeightTrackerAPI.Services.Helpers;
 using FitnessWeightTrackerAPI.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace FitnessWeightTrackerAPI.Services
 {
     public class BodyWeightService : IBodyWeightService
     {
         private readonly FitnessWeightTrackerDbContext _context;
+        private readonly ILogger<BodyWeightService> _logger;
 
-        public BodyWeightService(FitnessWeightTrackerDbContext context)
+        public BodyWeightService(FitnessWeightTrackerDbContext context, ILogger<BodyWeightService> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         #region BodyWeightRecords
@@ -23,11 +24,13 @@ namespace FitnessWeightTrackerAPI.Services
         public async Task DeleteAllBodyweightRecords(int userId)
         {
             await _context.BodyWeightRecords.Where(x => x.UserId == userId).ExecuteDeleteAsync();
+            _logger.LogInformation("All BodyWeightRecords were deleted.");
         }
 
         public async Task DeleteBodyweightRecord(int id, int userId)
         {
             await _context.BodyWeightRecords.Where(r => r.Id == id && r.UserId == userId).ExecuteDeleteAsync();
+            _logger.LogInformation("BodyWeightRecord was deleted.");
         }
 
         public async Task<BodyWeightRecord> GetBodyweightRecord(int id, int userId)
@@ -62,12 +65,15 @@ namespace FitnessWeightTrackerAPI.Services
         {
             if (!ValidationHelper.TryValidateObject(record, out var validationResults))
             {
+                _logger.LogError("Validation error occured.");
                 throw new CustomValidationException(validationResults);
             }
 
             await _context.BodyWeightRecords.Where(t => t.UserId == userId && t.Id == id)
                 .ExecuteUpdateAsync(setters => setters.SetProperty(b => b.Weight, record.Weight)
                 .SetProperty(b => b.Date, record.Date));
+
+            _logger.LogInformation("BodyWeightRecord was updated.");
         }
 
         public async Task<BodyWeightRecord> AddBodyweightRecord(int userId, BodyWeightRecordDTO record)
@@ -92,6 +98,8 @@ namespace FitnessWeightTrackerAPI.Services
 
                 _context.BodyWeightRecords.Add(entity);
                 await _context.SaveChangesAsync();
+
+                _logger.LogInformation("BodyWeightRecord was created.");
             }
 
             return entity;

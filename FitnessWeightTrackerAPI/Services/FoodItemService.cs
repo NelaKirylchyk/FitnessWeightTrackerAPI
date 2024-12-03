@@ -11,10 +11,12 @@ namespace FitnessWeightTrackerAPI.Services
     public class FoodItemService : IFoodItemService
     {
         private readonly FitnessWeightTrackerDbContext _context;
+        private readonly ILogger<FoodItemService> _logger;
 
-        public FoodItemService(FitnessWeightTrackerDbContext context)
+        public FoodItemService(FitnessWeightTrackerDbContext context, ILogger<FoodItemService> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         public async Task<FoodItem> AddFoodItem(FoodItemDTO foodItem)
@@ -32,11 +34,13 @@ namespace FitnessWeightTrackerAPI.Services
             // Validate Entity
             if (!ValidationHelper.TryValidateObject(entity, out var validationResults))
             {
+                _logger.LogError("Validation error while adding FoodItem.");
                 throw new CustomValidationException(validationResults);
             }
 
             _context.FoodItems.Add(entity);
             await _context.SaveChangesAsync();
+            _logger.LogInformation("FoodItem was added.");
 
             return entity;
         }
@@ -44,11 +48,13 @@ namespace FitnessWeightTrackerAPI.Services
         public async Task DeleteAllFoodItems()
         {
             await _context.FoodItems.ExecuteDeleteAsync();
+            _logger.LogInformation("All FoodItems were deleted.");
         }
 
         public async Task DeleteFoodItem(int id)
         {
             await _context.FoodItems.Where(r => r.Id == id).ExecuteDeleteAsync();
+            _logger.LogInformation("FoodItem was added.");
         }
 
         public async Task<FoodItem[]> GetAllFoodItems()
@@ -77,6 +83,8 @@ namespace FitnessWeightTrackerAPI.Services
                 .SetProperty(b => b.Carbohydrates, record.Carbohydrates)
                 .SetProperty(b => b.Fat, record.Fat)
                 .SetProperty(b => b.ServingSize, record.ServingSize));
+
+            _logger.LogInformation("FoodItem was updated.");
         }
     }
 }

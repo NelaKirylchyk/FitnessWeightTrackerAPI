@@ -11,10 +11,12 @@ namespace FitnessWeightTrackerAPI.Services
     public class FoodRecordService : IFoodRecordService
     {
         private readonly FitnessWeightTrackerDbContext _context;
+        private readonly ILogger<FoodRecordService> _logger;
 
-        public FoodRecordService(FitnessWeightTrackerDbContext context)
+        public FoodRecordService(FitnessWeightTrackerDbContext context, ILogger<FoodRecordService> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         public async Task<FoodRecord> AddFoodRecord(FoodRecordDTO foodRecord, int userId)
@@ -36,11 +38,13 @@ namespace FitnessWeightTrackerAPI.Services
                 // Validate  entity
                 if (!ValidationHelper.TryValidateObject(entity, out var validationResults))
                 {
+                    _logger.LogError("Validation error while adding FoodRecord.");
                     throw new CustomValidationException(validationResults);
                 }
 
                 _context.FoodRecords.Add(entity);
                 await _context.SaveChangesAsync();
+                _logger.LogInformation("FoodRecord was added.");
             }
 
             return entity;
@@ -49,11 +53,13 @@ namespace FitnessWeightTrackerAPI.Services
         public async Task DeleteAllFoodRecords(int userId)
         {
             await _context.FoodRecords.Where(x => x.UserId == userId).ExecuteDeleteAsync();
+            _logger.LogInformation("All FoodRecords were deleted.");
         }
 
         public async Task DeleteFoodRecord(int id, int userId)
         {
             await _context.FoodRecords.Where(r => r.Id == id && r.UserId == userId).ExecuteDeleteAsync();
+            _logger.LogInformation("FoodRecord was deleted.");
         }
 
         public async Task<FoodRecord[]> GetAllFoodRecords(int userId, bool ascendingOrder = false)
@@ -96,6 +102,8 @@ namespace FitnessWeightTrackerAPI.Services
                   .ExecuteUpdateAsync(setters => setters.SetProperty(b => b.ConsumptionDate, record.ConsumptionDate)
                 .SetProperty(b => b.Quantity, record.Quantity)
                 .SetProperty(b => b.FoodItemId, record.FoodItemId));
+
+            _logger.LogInformation("FoodRecord was updated.");
         }
 
         private async Task<bool> UserExists(int userId)
