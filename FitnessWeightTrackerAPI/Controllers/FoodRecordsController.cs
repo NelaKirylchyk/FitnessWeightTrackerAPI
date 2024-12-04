@@ -12,17 +12,16 @@ namespace FitnessWeightTrackerAPI.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-    public class FoodRecordsController : ControllerBase
+    public class FoodRecordsController : BaseController
     {
         private IFoodRecordService _nutritionService;
-        private UserManager<FitnessUser> _userManager;
 
         public FoodRecordsController(
             IFoodRecordService nutritionService,
             UserManager<FitnessUser> userManager)
+            : base(userManager)
         {
             _nutritionService = nutritionService;
-            _userManager = userManager;
         }
 
         // GET: api/FoodRecords
@@ -81,12 +80,6 @@ namespace FitnessWeightTrackerAPI.Controllers
             await _nutritionService.DeleteFoodRecord(id, userId);
 
             return NoContent();
-        }
-
-        private async Task<int> GetUserIdAsync()
-        {
-            var user = await _userManager.GetUserAsync(HttpContext.User);
-            return user.Id;
         }
     }
 }

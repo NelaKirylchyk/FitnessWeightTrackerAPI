@@ -12,17 +12,16 @@ namespace FitnessWeightTrackerAPI.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-    public class BodyWeightTargetsController : ControllerBase
+    public class BodyWeightTargetsController : BaseController
     {
         private IBodyWeightTargetService _bodyWeightTargetService;
-        private UserManager<FitnessUser> _userManager;
 
         public BodyWeightTargetsController(
             IBodyWeightTargetService bodyWeightService,
             UserManager<FitnessUser> userManager)
+            : base(userManager)
         {
             _bodyWeightTargetService = bodyWeightService;
-            _userManager = userManager;
         }
 
         // GET: api/BodyWeightTargets/5
@@ -64,16 +63,10 @@ namespace FitnessWeightTrackerAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteBodyWeightTargets(int id)
         {
-            var userId = await GetUserIdAsync();
+            var userId = await base.GetUserIdAsync();
             await _bodyWeightTargetService.DeleteBodyweightTarget(id, userId);
 
             return NoContent();
-        }
-
-        private async Task<int> GetUserIdAsync()
-        {
-            var user = await _userManager.GetUserAsync(HttpContext.User);
-            return user.Id;
         }
     }
 }
