@@ -1,7 +1,11 @@
 ﻿using FitnessWeightTrackerAPI.Data.DTO;
 using FitnessWeightTrackerAPI.Filters;
 using FitnessWeightTrackerAPI.Models;
-using FitnessWeightTrackerAPI.Services.Interfaces;
+using FitnessWeightTrackerAPI.Models.NutritionTargets.Commands.CreateNutritionTargetCommand;
+using FitnessWeightTrackerAPI.Models.NutritionTargets.Commands.DeleteNutritionTargetCommand;
+using FitnessWeightTrackerAPI.Models.NutritionTargets.Commands.UpdateNutritionTargetCommand;
+using FitnessWeightTrackerAPI.Models.NutritionTargets.Queries.GetNutritionTargetQuery;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -14,14 +18,14 @@ namespace FitnessWeightTrackerAPI.Controllers
     [Authorize]
     public class NutritionTargetsController : BaseController
     {
-        private INutritionTargetService _nutritionService;
+        private readonly IMediator _mediator;
 
         public NutritionTargetsController(
-            INutritionTargetService nutritionService,
+            IMediator mediator,
             UserManager<FitnessUser> userManager)
             : base(userManager)
         {
-            _nutritionService = nutritionService;
+            _mediator = mediator;
         }
 
         // GET: api/NutritionTargets/5
@@ -29,7 +33,17 @@ namespace FitnessWeightTrackerAPI.Controllers
         public async Task<ActionResult<NutritionTarget>> GetNutritionTargets()
         {
             var userId = await GetUserIdAsync();
-            return await _nutritionService.GetNutritionTarget(userId);
+            var query = new GetNutritionTargetQuery
+            {
+                UserId = userId
+            };
+            var result = await _mediator.Send(query);
+            if (result == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(result);
         }
 
         // POST: api/NutritionTargets
@@ -37,14 +51,19 @@ namespace FitnessWeightTrackerAPI.Controllers
         public async Task<ActionResult<NutritionTarget>> PostNutritionTargets(NutritionTargetDTO nutriotionTarget)
         {
             var userId = await GetUserIdAsync();
-            var entity = await _nutritionService.AddNutritionTarget(userId, nutriotionTarget);
 
-            if (entity == null)
+            var command = new AddNutritionTargetCommand
+            {
+                UserId = userId,
+                Target = nutriotionTarget
+            };
+            var result = await _mediator.Send(command);
+            if (result == null)
             {
                 return NotFound($"NutritionTarget with user Id = {userId} was not added");
             }
 
-            return CreatedAtAction("GetNutritionTargets", new { id = entity.Id }, nutriotionTarget);
+            return CreatedAtAction(nameof(GetNutritionTargets), new { id = result.Id }, result);
         }
 
         // PUT: api/NutritionTarget/5
@@ -52,7 +71,12 @@ namespace FitnessWeightTrackerAPI.Controllers
         public async Task<IActionResult> PutNutritionTargets(int id, NutritionTargetDTO nutriotionTarget)
         {
             var userId = await GetUserIdAsync();
-            await _nutritionService.UpdateNutritionTarget(id, userId, nutriotionTarget);
+            var command = new UpdateNutritionTargetCommand
+            {
+                Id = id, UserId = userId,
+                Target = nutriotionTarget
+            };
+            await _mediator.Send(command);
             return NoContent();
         }
 
@@ -61,8 +85,12 @@ namespace FitnessWeightTrackerAPI.Controllers
         public async Task<IActionResult> DeleteNutritionTargets(int id)
         {
             var userId = await GetUserIdAsync();
-            await _nutritionService.DeleteNutritionTarget(id, userId);
-
+            var command = new DeleteNutritionTargetCommand
+            {
+                Id = id,
+                UserId = userId
+            };
+            await _mediator.Send(command);
             return NoContent();
         }
     }

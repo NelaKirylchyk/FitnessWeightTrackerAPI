@@ -1,7 +1,12 @@
 ﻿using FitnessWeightTrackerAPI.Data.DTO;
 using FitnessWeightTrackerAPI.Filters;
 using FitnessWeightTrackerAPI.Models;
-using FitnessWeightTrackerAPI.Services.Interfaces;
+using FitnessWeightTrackerAPI.Models.FoodItems.Commands.CreateFoodItemCommand;
+using FitnessWeightTrackerAPI.Models.FoodItems.Commands.DeleteFoodItemCommand;
+using FitnessWeightTrackerAPI.Models.FoodItems.Commands.UpdateFoodItemCommand;
+using FitnessWeightTrackerAPI.Models.FoodItems.Queries.GetAllFoodItemsQuery;
+using FitnessWeightTrackerAPI.Models.FoodItems.Queries.GetFoodItemQuery;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,70 +18,86 @@ namespace FitnessWeightTrackerAPI.Controllers
     [Authorize]
     public class FoodItemsController : ControllerBase
     {
-        private IFoodItemService _foodItemService;
+        private readonly IMediator _mediator;
 
-        public FoodItemsController(IFoodItemService foodItemService)
+        public FoodItemsController(IMediator mediator)
         {
-            _foodItemService = foodItemService;
+            _mediator = mediator;
         }
 
         // GET: api/FoodItems
         [HttpGet]
         public async Task<ActionResult<IEnumerable<FoodItem>>> GetFoodItems()
         {
-            return await _foodItemService.GetAllFoodItems();
+            var query = new GetAllFoodItemsQuery();
+            var result = await _mediator.Send(query);
+            return Ok(result);
         }
 
         // GET: api/FoodItems/5
         [HttpGet("{id}")]
         public async Task<ActionResult<FoodItem>> GetFoodItems(int id)
         {
-            var foodItem = await _foodItemService.GetFoodItem(id);
-
-            if (foodItem == null)
+            var query = new GetFoodItemByIdQuery()
+            {
+                Id = id
+            };
+            var result = await _mediator.Send(query);
+            if (result == null)
             {
                 return NotFound();
             }
 
-            return foodItem;
+            return Ok(result);
         }
 
         // PUT: api/FoodItems/5
         [HttpPut("{id}")]
         public async Task<IActionResult> PutFoodItems(int id, FoodItemDTO foodItem)
         {
-            await _foodItemService.UpdateFoodItem(id, foodItem);
+            var command = new UpdateFoodItemCommand
+            {
+                Id = id,
+                Name = foodItem.Name,
+                Calories = foodItem.Calories,
+                Carbohydrates = foodItem.Carbohydrates,
+                Protein = foodItem.Protein,
+                Fat = foodItem.Fat,
+                ServingSize = foodItem.ServingSize
+            };
 
+            await _mediator.Send(command);
             return NoContent();
         }
 
         [HttpPost]
         public async Task<ActionResult<BodyWeightRecord>> PostFoodItems(FoodItemDTO foodItem)
         {
-            var created = await _foodItemService.AddFoodItem(foodItem);
+            var command = new AddFoodItemCommand
+            {
+                Name = foodItem.Name,
+                Calories = foodItem.Calories,
+                Carbohydrates = foodItem.Carbohydrates,
+                Protein = foodItem.Protein,
+                Fat = foodItem.Fat,
+                ServingSize = foodItem.ServingSize
+            };
 
-            if (created == null)
+            var result = await _mediator.Send(command);
+            if (result == null)
             {
                 return NotFound($"Food item was not added.");
             }
 
-            return CreatedAtAction("GetFoodItems", new { id = created.Id }, foodItem);
+            return CreatedAtAction(nameof(GetFoodItems), new { id = result.Id }, result);
         }
 
         // DELETE: api/FoodItems/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteFoodItems(int id)
         {
-            await _foodItemService.DeleteFoodItem(id);
-
-            return NoContent();
-        }
-
-        // DELETE: api/FoodItems
-        [HttpDelete]
-        public async Task<IActionResult> DeleteAllFoodItems()
-        {
-            await _foodItemService.DeleteAllFoodItems();
+            var command = new DeleteFoodItemCommand { Id = id };
+            await _mediator.Send(command);
             return NoContent();
         }
     }

@@ -1,7 +1,12 @@
 ﻿using FitnessWeightTrackerAPI.Data.DTO;
 using FitnessWeightTrackerAPI.Filters;
 using FitnessWeightTrackerAPI.Models;
-using FitnessWeightTrackerAPI.Services.Interfaces;
+using FitnessWeightTrackerAPI.Models.BodyWeightRecords.Commands.CreateBodyWeightRecordCommand;
+using FitnessWeightTrackerAPI.Models.BodyWeightRecords.Commands.DeleteBodyWeightRecordCommand;
+using FitnessWeightTrackerAPI.Models.BodyWeightRecords.Commands.UpdateBodyWeightRecordCommand;
+using FitnessWeightTrackerAPI.Models.BodyWeightRecords.Queries.GetAllBodyWeightRecordsQuery;
+using FitnessWeightTrackerAPI.Models.BodyWeightRecords.Queries.GetByIdBodyWeightRecordsQuery;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -14,23 +19,26 @@ namespace FitnessWeightTrackerAPI.Controllers
     [Authorize]
     public class BodyWeightRecordsController : BaseController
     {
-        private IBodyWeightService _bodyWeightService;
+        private readonly IMediator _mediator;
 
         public BodyWeightRecordsController(
-            IBodyWeightService bodyWeightService,
+            IMediator mediator,
             UserManager<FitnessUser> userManager)
             : base(userManager)
         {
-            _bodyWeightService = bodyWeightService;
+            _mediator = mediator;
         }
 
         // GET: api/BodyWeightRecords
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<BodyWeightRecord>>> GetBodyWeightRecords()
+        public async Task<ActionResult<IEnumerable<BodyWeightRecord>>> GetBodyWeightRecords([FromQuery] bool ascendingOrder = false)
         {
             var userId = await GetUserIdAsync();
 
-            return await _bodyWeightService.GetAllUserBodyweightRecords(userId);
+            var query = new GetBodyWeightRecordsQuery { UserId = userId, AscendingOrder = ascendingOrder };
+            var result = await _mediator.Send(query);
+
+            return Ok(result);
         }
 
         // GET: api/BodyWeightRecords/5
@@ -39,14 +47,14 @@ namespace FitnessWeightTrackerAPI.Controllers
         {
             var userId = await GetUserIdAsync();
 
-            var bodyWeightRecord = await _bodyWeightService.GetBodyweightRecord(id, userId);
-
-            if (bodyWeightRecord == null)
+            var query = new GetBodyWeightRecordByIdQuery { Id = id, UserId = userId };
+            var result = await _mediator.Send(query);
+            if (result == null)
             {
                 return NotFound();
             }
 
-            return bodyWeightRecord;
+            return Ok(result);
         }
 
         // POST: api/BodyWeightRecords
@@ -56,18 +64,16 @@ namespace FitnessWeightTrackerAPI.Controllers
         {
             var userId = await GetUserIdAsync();
 
-            var created = await _bodyWeightService.AddBodyweightRecord(userId, bodyWeightRecord);
+            var command = new AddBodyWeightRecordCommand { UserId = userId, Record = bodyWeightRecord };
 
-            if (created == null)
+            var result = await _mediator.Send(command);
+
+            if (result == null)
             {
                 return NotFound("BodyWeghtRecord was not added.");
             }
 
-            return CreatedAtAction("GetBodyWeightRecords", new
-            {
-                id = created.Id,
-            },
-            bodyWeightRecord);
+            return CreatedAtAction(nameof(GetBodyWeightRecords), new { id = result.Id }, result);
         }
 
         // PUT: api/BodyWeightRecord/5
@@ -77,7 +83,8 @@ namespace FitnessWeightTrackerAPI.Controllers
         {
             var userId = await GetUserIdAsync();
 
-            await _bodyWeightService.UpdateBodyweightRecord(id, userId, bodyWeightRecord);
+            var command = new UpdateBodyWeightRecordCommand { Id = id, UserId = userId, Record = bodyWeightRecord };
+            await _mediator.Send(command);
 
             return NoContent();
         }
@@ -88,7 +95,8 @@ namespace FitnessWeightTrackerAPI.Controllers
         {
             var userId = await GetUserIdAsync();
 
-            await _bodyWeightService.DeleteBodyweightRecord(id, userId);
+            var command = new DeleteBodyWeightRecordCommand { Id = id, UserId = userId };
+            await _mediator.Send(command);
 
             return NoContent();
         }

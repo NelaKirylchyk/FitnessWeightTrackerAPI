@@ -1,7 +1,11 @@
 ﻿using FitnessWeightTrackerAPI.Data.DTO;
 using FitnessWeightTrackerAPI.Filters;
 using FitnessWeightTrackerAPI.Models;
-using FitnessWeightTrackerAPI.Services.Interfaces;
+using FitnessWeightTrackerAPI.Models.BodyWeightTargets.Commands.CreateBodyWeightTargetCommand;
+using FitnessWeightTrackerAPI.Models.BodyWeightTargets.Commands.DeleteBodyWeightTargetCommand;
+using FitnessWeightTrackerAPI.Models.BodyWeightTargets.Commands.UpdateBodyWeightTargetCommand;
+using FitnessWeightTrackerAPI.Models.BodyWeightTargets.Queries.GetBodyWeightTargetQuery;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -14,14 +18,14 @@ namespace FitnessWeightTrackerAPI.Controllers
     [Authorize]
     public class BodyWeightTargetsController : BaseController
     {
-        private IBodyWeightTargetService _bodyWeightTargetService;
+        private readonly IMediator _mediator;
 
         public BodyWeightTargetsController(
-            IBodyWeightTargetService bodyWeightService,
+            IMediator mediator,
             UserManager<FitnessUser> userManager)
             : base(userManager)
         {
-            _bodyWeightTargetService = bodyWeightService;
+            _mediator = mediator;
         }
 
         // GET: api/BodyWeightTargets/5
@@ -30,7 +34,15 @@ namespace FitnessWeightTrackerAPI.Controllers
         {
             var userId = await GetUserIdAsync();
 
-            return await _bodyWeightTargetService.GetUserBodyweightTarget(userId);
+            var query = new GetBodyWeightTargetQuery { UserId = userId };
+            var result = await _mediator.Send(query);
+
+            if (result == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(result);
         }
 
         // POST: api/BodyWeightTargets
@@ -39,14 +51,19 @@ namespace FitnessWeightTrackerAPI.Controllers
         public async Task<ActionResult<BodyWeightTarget>> PostBodyWeightTargets(BodyWeightTargetDTO bodyWeightTarget)
         {
             var userId = await GetUserIdAsync();
-            var entity = await _bodyWeightTargetService.AddBodyweightTarget(userId, bodyWeightTarget);
+            var command = new AddBodyWeightTargetCommand
+            {
+                UserId = userId,
+                Target = bodyWeightTarget
+            };
+            var result = await _mediator.Send(command);
 
-            if (entity == null)
+            if (result == null)
             {
                 return NotFound($"BodyWeightTarget with user Id = {userId} was not added");
             }
 
-            return CreatedAtAction("GetBodyWeightTargets", new { id = entity.Id }, bodyWeightTarget);
+            return CreatedAtAction(nameof(GetBodyWeightTargets), new { id = result.Id }, result);
         }
 
         // PUT: api/BodyWeightTargets/5
@@ -54,8 +71,14 @@ namespace FitnessWeightTrackerAPI.Controllers
         public async Task<IActionResult> PutBodyWeightTargets(int id, BodyWeightTargetDTO bodyWeightTarget)
         {
             var userId = await GetUserIdAsync();
-            await _bodyWeightTargetService.UpdateBodyweightTarget(id, userId, bodyWeightTarget);
+            var command = new UpdateBodyWeightTargetCommand
+            {
+                Id = id,
+                UserId = userId,
+                Target = bodyWeightTarget
+            };
 
+            await _mediator.Send(command);
             return NoContent();
         }
 
@@ -63,9 +86,13 @@ namespace FitnessWeightTrackerAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteBodyWeightTargets(int id)
         {
-            var userId = await base.GetUserIdAsync();
-            await _bodyWeightTargetService.DeleteBodyweightTarget(id, userId);
-
+            var userId = await GetUserIdAsync();
+            var command = new DeleteBodyWeightTargetCommand
+            {
+                Id = id,
+                UserId = userId
+            };
+            await _mediator.Send(command);
             return NoContent();
         }
     }
