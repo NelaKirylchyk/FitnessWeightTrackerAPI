@@ -88,7 +88,7 @@ namespace FitnessWeightTrackerAPI.Controllers
 
                 return CreatedAtAction(nameof(GetNutritionTargets), new { id = result.Id }, result);
             }
-            catch (NutritionTargetAlreadyExistsException ex)
+            catch (TargetAlreadyExistsException ex)
             {
                 return Conflict(new { message = ex.Message });
             }

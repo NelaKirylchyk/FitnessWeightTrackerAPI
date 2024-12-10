@@ -27,7 +27,7 @@ namespace FitnessWeightTrackerAPI.Models.BodyWeightTargets.Commands.CreateBodyWe
             if (anyBodyWeightTargetExists)
             {
                 _logger.LogError("User already has bodyweight target.");
-                return null;
+                throw new TargetAlreadyExistsException("User already has a bodyweight target.");
             }
 
             var entity = new BodyWeightTarget

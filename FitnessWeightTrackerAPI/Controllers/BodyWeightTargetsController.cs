@@ -1,9 +1,11 @@
-﻿using FitnessWeightTrackerAPI.Data.DTO;
+﻿using FitnessWeightTrackerAPI.CustomExceptions;
+using FitnessWeightTrackerAPI.Data.DTO;
 using FitnessWeightTrackerAPI.Filters;
 using FitnessWeightTrackerAPI.Models;
 using FitnessWeightTrackerAPI.Models.BodyWeightTargets.Commands.CreateBodyWeightTargetCommand;
 using FitnessWeightTrackerAPI.Models.BodyWeightTargets.Commands.DeleteBodyWeightTargetCommand;
 using FitnessWeightTrackerAPI.Models.BodyWeightTargets.Commands.UpdateBodyWeightTargetCommand;
+using FitnessWeightTrackerAPI.Models.BodyWeightTargets.Queries.GetBodyWeightTargetByIdQuery;
 using FitnessWeightTrackerAPI.Models.BodyWeightTargets.Queries.GetBodyWeightTargetQuery;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -45,25 +47,52 @@ namespace FitnessWeightTrackerAPI.Controllers
             return Ok(result);
         }
 
+        // GET: api/BodyWeightTargets/{id}
+        [HttpGet("{id}")]
+        public async Task<ActionResult<BodyWeightTarget>> GetBodyWeightTargetById(int id)
+        {
+            var userId = await GetUserIdAsync();
+            var query = new GetBodyWeightTargetByIdQuery
+            {
+                Id = id,
+                UserId = userId
+            };
+            var result = await _mediator.Send(query);
+            if (result == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(result);
+        }
+
         // POST: api/BodyWeightTargets
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<BodyWeightTarget>> PostBodyWeightTargets(BodyWeightTargetDTO bodyWeightTarget)
         {
             var userId = await GetUserIdAsync();
-            var command = new AddBodyWeightTargetCommand
-            {
-                UserId = userId,
-                Target = bodyWeightTarget
-            };
-            var result = await _mediator.Send(command);
 
-            if (result == null)
+            try
             {
-                return NotFound($"BodyWeightTarget with user Id = {userId} was not added");
+                var command = new AddBodyWeightTargetCommand
+                {
+                    UserId = userId,
+                    Target = bodyWeightTarget
+                };
+                var result = await _mediator.Send(command);
+
+                if (result == null)
+                {
+                    return NotFound($"BodyWeightTarget with user Id = {userId} was not added");
+                }
+
+                return CreatedAtAction(nameof(GetBodyWeightTargets), new { id = result.Id }, result);
             }
-
-            return CreatedAtAction(nameof(GetBodyWeightTargets), new { id = result.Id }, result);
+            catch (TargetAlreadyExistsException ex)
+            {
+                return Conflict(new { message = ex.Message });
+            }
         }
 
         // PUT: api/BodyWeightTargets/5
