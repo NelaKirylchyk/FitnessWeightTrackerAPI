@@ -27,7 +27,7 @@ namespace FitnessWeightTrackerAPI.Models.NutritionTargets.Commands.CreateNutriti
             if (anyNutriotionTargetExists)
             {
                 _logger.LogError("User already has nutrition target.");
-                return null;
+                throw new NutritionTargetAlreadyExistsException("User already has a nutrition target.");
             }
 
             var entity = new NutritionTarget

@@ -1,5 +1,4 @@
 ﻿using FitnessWeightTrackerAPI.Data;
-using FitnessWeightTrackerAPI.Data.DTO;
 using FitnessWeightTrackerAPI.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -15,7 +14,6 @@ namespace FitnessWeightTrackerAPI.Test
         {
             builder.ConfigureServices(services =>
             {
-
                 // Remove the app's FitnessWeightTrackerDbContext registration
                 var descriptor = services.SingleOrDefault(
                     d => d.ServiceType == typeof(DbContextOptions<FitnessWeightTrackerDbContext>));
@@ -26,8 +24,6 @@ namespace FitnessWeightTrackerAPI.Test
                 }
                 var connectionString = @"Server=(localdb)\mssqllocaldb;Database=EFTestSample;Trusted_Connection=True;ConnectRetryCount=0";
 
-
-                // Add a database context (FitnessWeightTrackerDbContext) using an in-memory database for testing
                 services.AddDbContext<FitnessWeightTrackerDbContext>(options =>
                 {
                     options.UseSqlServer(connectionString);

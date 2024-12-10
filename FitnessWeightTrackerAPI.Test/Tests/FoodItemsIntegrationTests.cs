@@ -3,7 +3,7 @@ using FitnessWeightTrackerAPI.Models;
 using System.Text.Json;
 using System.Text;
 
-namespace FitnessWeightTrackerAPI.Test
+namespace FitnessWeightTrackerAPI.Test.Tests
 {
     public class FoodItemsIntegrationTests : IntegrationTestBase
     {
