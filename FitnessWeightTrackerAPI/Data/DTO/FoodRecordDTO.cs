@@ -7,8 +7,6 @@ namespace FitnessWeightTrackerAPI.Data.DTO
     {
         public int FoodItemId { get; set; }
 
-        public FoodItemDTO FoodItem { get; set; }
-
         [Range(0.0, 10000.0, ErrorMessage = "Quantity must be a positive value.")]
         public float Quantity { get; set; }
 

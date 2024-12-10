@@ -1,47 +1,74 @@
 ﻿using FitnessWeightTrackerAPI.Data;
+using FitnessWeightTrackerAPI.Data.DTO;
+using FitnessWeightTrackerAPI.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using System.Data.Common;
+using System.Configuration;
 
 namespace FitnessWeightTrackerAPI.Test
 {
-    public class CustomWebApplicationFactory<TProgram>
-    : WebApplicationFactory<TProgram> where TProgram : class
+    public class CustomWebApplicationFactory<TStartup> : WebApplicationFactory<TStartup> where TStartup : class
     {
+        public FoodItem FakeFoodItem { get; private set; }
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
             builder.ConfigureServices(services =>
             {
-                var dbContextDescriptor = services.SingleOrDefault(
-                    d => d.ServiceType ==
-                        typeof(DbContextOptions<FitnessWeightTrackerDbContext>));
 
-                services.Remove(dbContextDescriptor);
+                // Remove the app's FitnessWeightTrackerDbContext registration
+                var descriptor = services.SingleOrDefault(
+                    d => d.ServiceType == typeof(DbContextOptions<FitnessWeightTrackerDbContext>));
 
-                var dbConnectionDescriptor = services.SingleOrDefault(
-                    d => d.ServiceType ==
-                        typeof(DbConnection));
-
-                services.Remove(dbConnectionDescriptor);
-
-                // Create open SqliteConnection so EF won't automatically close it.
-                services.AddSingleton<DbConnection>(container =>
+                if (descriptor != null)
                 {
-                    var connection = new SqliteConnection("DataSource=:memory:");
-                    connection.Open();
+                    services.Remove(descriptor);
+                }
+                var connectionString = @"Server=(localdb)\mssqllocaldb;Database=EFTestSample;Trusted_Connection=True;ConnectRetryCount=0";
 
-                    return connection;
+
+                // Add a database context (FitnessWeightTrackerDbContext) using an in-memory database for testing
+                services.AddDbContext<FitnessWeightTrackerDbContext>(options =>
+                {
+                    options.UseSqlServer(connectionString);
                 });
 
-                services.AddDbContext<FitnessWeightTrackerDbContext>((container, options) =>
+                // Add IHttpContextAccessor for mocking HttpContext
+                services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
+                // Build the service provider
+                var sp = services.BuildServiceProvider();
+
+                // Create a scope to obtain a reference to the database contexts
+                using (var scope = sp.CreateScope())
                 {
-                    var connection = container.GetRequiredService<DbConnection>();
-                    options.UseSqlite(connection);
-                });
+                    var scopedServices = scope.ServiceProvider;
+                    var context = scopedServices.GetRequiredService<FitnessWeightTrackerDbContext>();
+                    var userManager = scopedServices.GetRequiredService<UserManager<FitnessUser>>();
+                    var signInManager = scopedServices.GetRequiredService<SignInManager<FitnessUser>>();
+
+                    context.Database.EnsureCreated();
+
+                    // Seed the database with test data
+                    var user = new FitnessUser { UserName = "testuser@test.com", Email = "testuser@test.com" };
+                    userManager.CreateAsync(user, "Test@123").GetAwaiter().GetResult();
+
+                    var foodItem = new FoodItem
+                    {
+                        Name = "Banana",
+                        Calories = 100,
+                        Carbohydrates = 25,
+                        Protein = 1,
+                        Fat = 5,
+                        ServingSize = 100
+                    };
+
+                    context.FoodItems.Add(foodItem);
+                    context.SaveChanges();
+
+                    FakeFoodItem = foodItem;
+                }
             });
-
-            builder.UseEnvironment("Development");
         }
     }
 }
