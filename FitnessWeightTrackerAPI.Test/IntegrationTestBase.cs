@@ -5,20 +5,27 @@ using System.Text;
 
 namespace FitnessWeightTrackerAPI.Test
 {
-    public abstract class IntegrationTestBase : IClassFixture<CustomWebApplicationFactory<Program>>
+    public abstract class IntegrationTestBase : IClassFixture<CustomWebApplicationFactory<Program>>, IDisposable
     {
         protected readonly HttpClient Client;
         protected readonly CustomWebApplicationFactory<Program> Factory;
+        private static string _authToken;
 
         protected IntegrationTestBase(CustomWebApplicationFactory<Program> factory)
         {
             Factory = factory;
             Client = factory.CreateClient();
-            AuthenticateClient().GetAwaiter().GetResult();
+            AuthenticateClientOnce().GetAwaiter().GetResult();
         }
 
-        private async Task AuthenticateClient()
+        private async Task AuthenticateClientOnce()
         {
+            if (!string.IsNullOrEmpty(_authToken))
+            {
+                Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _authToken);
+                return;
+            }
+
             var loginRequest = new LoginRequest
             {
                 Email = "testuser@test.com",
@@ -31,9 +38,14 @@ namespace FitnessWeightTrackerAPI.Test
 
             var responseContent = await response.Content.ReadAsStringAsync();
             var loginResponse = JsonSerializer.Deserialize<LoginResponse>(responseContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-            var token = loginResponse.AccessToken;
+            _authToken = loginResponse.AccessToken;
 
-            Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _authToken);
+        }
+
+        public void Dispose()
+        {
+            Client?.Dispose();
         }
     }
 }
