@@ -3,7 +3,7 @@ using MediatR;
 
 namespace FitnessWeightTrackerAPI.Models.BodyWeightRecords.Commands.UpdateBodyWeightRecordCommand
 {
-    public class UpdateBodyWeightRecordCommand : IRequest
+    public class UpdateBodyWeightRecordCommand : IRequest<bool>
     {
         public int Id { get; set; }
 

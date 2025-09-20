@@ -84,7 +84,10 @@ namespace FitnessWeightTrackerAPI.Controllers
             var userId = await GetUserIdAsync();
 
             var command = new UpdateBodyWeightRecordCommand { Id = id, UserId = userId, Record = bodyWeightRecord };
-            await _mediator.Send(command);
+            var updated = await _mediator.Send(command);
+
+            if (!updated)
+                return NotFound();
 
             return NoContent();
         }
@@ -96,7 +99,10 @@ namespace FitnessWeightTrackerAPI.Controllers
             var userId = await GetUserIdAsync();
 
             var command = new DeleteBodyWeightRecordCommand { Id = id, UserId = userId };
-            await _mediator.Send(command);
+            var deleted = await _mediator.Send(command);
+
+            if (!deleted)
+                return NotFound();
 
             return NoContent();
         }
