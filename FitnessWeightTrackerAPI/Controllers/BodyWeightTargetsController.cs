@@ -34,7 +34,7 @@ namespace FitnessWeightTrackerAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<BodyWeightTarget>> GetBodyWeightTargets()
         {
-            var userId = await GetUserIdAsync();
+            var userId = GetUserIdAsync();
 
             var query = new GetBodyWeightTargetQuery { UserId = userId };
             var result = await _mediator.Send(query);
@@ -51,7 +51,7 @@ namespace FitnessWeightTrackerAPI.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<BodyWeightTarget>> GetBodyWeightTargetById(int id)
         {
-            var userId = await GetUserIdAsync();
+            var userId = GetUserIdAsync();
             var query = new GetBodyWeightTargetByIdQuery
             {
                 Id = id,
@@ -71,7 +71,7 @@ namespace FitnessWeightTrackerAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<BodyWeightTarget>> PostBodyWeightTargets(BodyWeightTargetDTO bodyWeightTarget)
         {
-            var userId = await GetUserIdAsync();
+            var userId = GetUserIdAsync();
 
             try
             {
@@ -99,7 +99,7 @@ namespace FitnessWeightTrackerAPI.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutBodyWeightTargets(int id, BodyWeightTargetDTO bodyWeightTarget)
         {
-            var userId = await GetUserIdAsync();
+            var userId = GetUserIdAsync();
             var command = new UpdateBodyWeightTargetCommand
             {
                 Id = id,
@@ -115,7 +115,7 @@ namespace FitnessWeightTrackerAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteBodyWeightTargets(int id)
         {
-            var userId = await GetUserIdAsync();
+            var userId = GetUserIdAsync();
             var command = new DeleteBodyWeightTargetCommand
             {
                 Id = id,

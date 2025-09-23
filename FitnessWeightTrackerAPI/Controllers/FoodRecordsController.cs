@@ -33,7 +33,7 @@ namespace FitnessWeightTrackerAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<FoodRecord>>> GetFoodRecords(bool ascendingOrder = false)
         {
-            var userId = await GetUserIdAsync();
+            var userId = GetUserIdAsync();
             var query = new GetAllFoodRecordsQuery
             {
                 UserId = userId,
@@ -47,7 +47,7 @@ namespace FitnessWeightTrackerAPI.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<FoodRecord>> GetFoodRecords(int id)
         {
-            var userId = await GetUserIdAsync();
+            var userId = GetUserIdAsync();
             var query = new GetFoodRecordByIdQuery
             {
                 Id = id,
@@ -66,7 +66,7 @@ namespace FitnessWeightTrackerAPI.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutFoodRecords(int id, FoodRecordDTO foodRecord)
         {
-            var userId = await GetUserIdAsync();
+            var userId = GetUserIdAsync();
             var command = new UpdateFoodRecordCommand
             {
                 Id = id,
@@ -81,7 +81,7 @@ namespace FitnessWeightTrackerAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<FoodRecord>> PostFoodRecords(FoodRecordDTO foodRecord)
         {
-            var userId = await GetUserIdAsync();
+            var userId = GetUserIdAsync();
 
             var command = new AddFoodRecordCommand
             {
@@ -102,7 +102,7 @@ namespace FitnessWeightTrackerAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteFoodRecords(int id)
         {
-            var userId = await GetUserIdAsync();
+            var userId = GetUserIdAsync();
             var command = new DeleteFoodRecordCommand
             {
                 Id = id,

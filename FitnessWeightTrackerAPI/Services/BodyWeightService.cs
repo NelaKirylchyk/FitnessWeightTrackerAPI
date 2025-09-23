@@ -107,6 +107,9 @@ namespace FitnessWeightTrackerAPI.Services
 
         public async Task<BodyWeightRecord> AddBodyweightRecord(int userId, BodyWeightRecordDTO record)
         {
+            if (record == null)
+                throw new ArgumentNullException(nameof(record));
+
             var userExists = await UserExists(userId);
             BodyWeightRecord? entity = null;
 

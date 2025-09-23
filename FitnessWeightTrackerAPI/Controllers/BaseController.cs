@@ -11,9 +11,18 @@ public abstract class BaseController : ControllerBase
         _userManager = userManager;
     }
 
-    protected async Task<int> GetUserIdAsync()
+    protected int GetUserIdAsync()
     {
-        var user = await _userManager.GetUserAsync(HttpContext.User);
-        return user.Id;
+        var userIdClaim = User.FindFirst(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Sub)?.Value
+                      ?? User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+        if (userIdClaim == null)
+            throw new UnauthorizedAccessException("User ID claim not found.");
+
+        if (!int.TryParse(userIdClaim, out var userId))
+            throw new ArgumentException($"User ID claim '{userIdClaim}' is not a valid int.");
+
+        return userId;
     }
+
 }

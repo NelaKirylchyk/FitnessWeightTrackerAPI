@@ -5,12 +5,15 @@ using FitnessWeightTrackerAPI.Services;
 using FitnessWeightTrackerAPI.Services.Interfaces;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,6 +42,12 @@ builder.Services.AddCors(options =>
             .AllowAnyHeader()
             .AllowAnyMethod();
         });
+    options.AddPolicy("AllowClient",
+        policy => policy
+            .WithOrigins("https://localhost:7015")
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials());
 });
 
 builder.Services.AddControllers(options =>
@@ -52,7 +61,7 @@ builder.Services.AddDbContext<FitnessWeightTrackerDbContext>(opt => opt.UseSqlSe
 // Add services to the container.
 builder.Services.AddAuthentication(options =>
 {
-    options.DefaultScheme = IdentityConstants.BearerScheme;
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
 })
     .AddCookie(IdentityConstants.ExternalScheme)
     .AddBearerToken(IdentityConstants.BearerScheme)
@@ -69,6 +78,19 @@ builder.Services.AddAuthentication(options =>
             }
         };
         googleOptions.SignInScheme = IdentityConstants.ExternalScheme;
+    })
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+        };
     });
 
 builder.Services.AddIdentityCore<FitnessUser>()
@@ -130,7 +152,7 @@ app.UseStaticFiles();
 
 app.UseHttpsRedirection();
 
-app.UseCors(myAllowSpecificOrigins);
+app.UseCors("AllowClient");
 
 app.UseAuthentication();
 app.UseAuthorization();

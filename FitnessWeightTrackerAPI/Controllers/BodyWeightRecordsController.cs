@@ -7,6 +7,8 @@ using FitnessWeightTrackerAPI.Models.BodyWeightRecords.Commands.UpdateBodyWeight
 using FitnessWeightTrackerAPI.Models.BodyWeightRecords.Queries.GetAllBodyWeightRecordsQuery;
 using FitnessWeightTrackerAPI.Models.BodyWeightRecords.Queries.GetByIdBodyWeightRecordsQuery;
 using MediatR;
+using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -16,7 +18,7 @@ namespace FitnessWeightTrackerAPI.Controllers
     [ValidateModel]
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme + "," + GoogleDefaults.AuthenticationScheme)]
     public class BodyWeightRecordsController : BaseController
     {
         private readonly IMediator _mediator;
@@ -33,7 +35,7 @@ namespace FitnessWeightTrackerAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<BodyWeightRecord>>> GetBodyWeightRecords([FromQuery] bool ascendingOrder = false)
         {
-            var userId = await GetUserIdAsync();
+            var userId = GetUserIdAsync();
 
             var query = new GetBodyWeightRecordsQuery { UserId = userId, AscendingOrder = ascendingOrder };
             var result = await _mediator.Send(query);
@@ -45,7 +47,7 @@ namespace FitnessWeightTrackerAPI.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<BodyWeightRecord>> GetBodyWeightRecords(int id)
         {
-            var userId = await GetUserIdAsync();
+            var userId = GetUserIdAsync();
 
             var query = new GetBodyWeightRecordByIdQuery { Id = id, UserId = userId };
             var result = await _mediator.Send(query);
@@ -62,7 +64,7 @@ namespace FitnessWeightTrackerAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<BodyWeightRecord>> PostBodyWeightRecords(BodyWeightRecordDTO bodyWeightRecord)
         {
-            var userId = await GetUserIdAsync();
+            var userId = GetUserIdAsync();
 
             var command = new AddBodyWeightRecordCommand { UserId = userId, Record = bodyWeightRecord };
 
@@ -81,7 +83,7 @@ namespace FitnessWeightTrackerAPI.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutBodyWeightRecords(int id, BodyWeightRecordDTO bodyWeightRecord)
         {
-            var userId = await GetUserIdAsync();
+            var userId = GetUserIdAsync();
 
             var command = new UpdateBodyWeightRecordCommand { Id = id, UserId = userId, Record = bodyWeightRecord };
             var updated = await _mediator.Send(command);
@@ -96,7 +98,7 @@ namespace FitnessWeightTrackerAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteBodyWeightRecords(int id)
         {
-            var userId = await GetUserIdAsync();
+            var userId = GetUserIdAsync();
 
             var command = new DeleteBodyWeightRecordCommand { Id = id, UserId = userId };
             var deleted = await _mediator.Send(command);
