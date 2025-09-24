@@ -1,0 +1,56 @@
+﻿@page "/login"
+@using FitnessWeightTracker.Client.Models
+@using FitnessWeightTracker.Client.Services
+@inject AuthService AuthService
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+
+<h3>Login</h3>
+
+<EditForm Model="@loginModel" OnValidSubmit="HandleLogin">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div>
+        <label>Email:</label>
+        <InputText @bind-Value="loginModel.Email" />
+    </div>
+    <div>
+        <label>Password:</label>
+        <InputText @bind-Value="loginModel.Password" type="password" />
+    </div>
+    <button type="submit">Login</button>
+</EditForm>
+
+<hr />
+
+<button @onclick="LoginWithGoogle">Login with Google</button>
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <p>@message</p>
+}
+
+@code {
+    private LoginModel loginModel = new();
+    private string message;
+
+    private async Task HandleLogin()
+    {
+        var token = await AuthService.LoginAsync(loginModel);
+        if (!string.IsNullOrEmpty(token))
+        {
+            message = "Login successful!";
+            Navigation.NavigateTo("/");
+        }
+        else
+        {
+            message = "Login failed.";
+        }
+    }
+
+    private async Task LoginWithGoogle()
+    {
+        await JS.InvokeVoidAsync("eval", "window.location.href='https://localhost:7231/api/auth/signin-google'");
+    }
+}
