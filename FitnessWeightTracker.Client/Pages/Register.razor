@@ -3,17 +3,37 @@
 @using FitnessWeightTracker.Client.Services
 @inject AuthService AuthService
 
-<h3>Register</h3>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-5">
+            <div class="card elevate">
+                <div class="card-header">Register</div>
+                <div class="card-body">
+                    <EditForm Model="registerModel" OnValidSubmit="HandleRegister">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary class="mb-3" />
+                        <div class="mb-3">
+                            <label for="reg-email" class="form-label">Email</label>
+                            <InputText id="reg-email" class="form-control" @bind-Value="registerModel.Email" autocomplete="email" />
+                            <ValidationMessage For="@(() => registerModel.Email)" />
+                        </div>
+                        <div class="mb-3">
+                            <label for="reg-password" class="form-label">Password</label>
+                            <InputText id="reg-password" class="form-control" @bind-Value="registerModel.Password" type="password" autocomplete="new-password" />
+                            <ValidationMessage For="@(() => registerModel.Password)" />
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Register</button>
+                    </EditForm>
 
-<EditForm Model="registerModel" OnValidSubmit="HandleRegister">
-    <InputText @bind-Value="registerModel.Email" placeholder="Email" />
-    <InputText @bind-Value="registerModel.Password" type="password" placeholder="Password" />
-    <button type="submit">Register</button>
-</EditForm>
-@if (!string.IsNullOrEmpty(message))
-{
-    <p>@message</p>
-}
+                    @if (!string.IsNullOrEmpty(message))
+                    {
+                        <div class="alert mt-3">@message</div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 @code {
     RegisterModel registerModel = new();

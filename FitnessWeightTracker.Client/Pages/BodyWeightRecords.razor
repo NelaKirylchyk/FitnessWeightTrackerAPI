@@ -1,68 +1,111 @@
 @page "/bodyweight"
 @using Microsoft.AspNetCore.Components.Authorization
 
-<h3>Body Weight Records</h3>
+<div class="container py-4">
+    <h2 class="mb-4">Body Weight Records</h2>
 
-@if (IsLoading)
-{
-    <p>Loading...</p>
-}
-else
-{
-    <AuthorizeView>
-        <Authorized Context="auth">
-            @if (!string.IsNullOrEmpty(Message))
-            {
-                <div>@Message</div>
-            }
-
-            <EditForm Model="@EditModel" OnValidSubmit="SaveAsync">
-                <DataAnnotationsValidator />
-                <ValidationSummary />
-                <div class="mb-2">
-                    <label>Date: </label>
-                    <InputDate @bind-Value="EditModel.Date" />
-                </div>
-                <div class="mb-2">
-                    <label>Weight: </label>
-                    <InputNumber @bind-Value="EditModel.Weight" />
-                </div>
-                <button type="submit">@(IsEditing ? "Update" : "Add")</button>
-                @if (IsEditing)
+    @if (IsLoading)
+    {
+        <div class="text-center my-5">
+            <div class="spinner-border text-primary" role="status" aria-hidden="true"></div>
+            <div class="mt-2 text-muted">Loading records…</div>
+        </div>
+    }
+    else
+    {
+        <AuthorizeView>
+            <Authorized Context="_">
+                @if (!string.IsNullOrEmpty(Message))
                 {
-                    <button type="button" @onclick="CancelEdit">Cancel</button>
+                    <div class="alert mb-3">@Message</div>
                 }
-            </EditForm>
 
-            <hr />
+                <div class="row g-4">
+                    <div class="col-12 col-lg-5">
+                        <div class="card elevate">
+                            <div class="card-header">@(IsEditing ? "Edit Record" : "Add Record")</div>
+                            <div class="card-body">
+                                <EditForm Model="@EditModel" OnValidSubmit="SaveAsync">
+                                    <DataAnnotationsValidator />
+                                    <ValidationSummary class="mb-3" />
 
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Weight</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var r in Records)
-                    {
-                        <tr>
-                            <td>@r.Date.ToString("yyyy-MM-dd")</td>
-                            <td>@r.Weight</td>
-                            <td>
-                                <button @onclick="() => BeginEdit(r)">Edit</button>
-                                <button @onclick="() => DeleteAsync(r.Id)">Delete</button>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </Authorized>
-        <NotAuthorized>
-            <div class="alert alert-info">
-                Please log in to view your body weight records.
-            </div>
-        </NotAuthorized>
-    </AuthorizeView>
-}
+                                    <div class="mb-3">
+                                        <label for="date" class="form-label">Date</label>
+                                        <InputDate id="date" class="form-control" @bind-Value="EditModel.Date" />
+                                        <ValidationMessage For="@(() => EditModel.Date)" />
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="weight" class="form-label">Weight (kg)</label>
+                                        <InputNumber id="weight" class="form-control" @bind-Value="EditModel.Weight" step="0.1" />
+                                        <ValidationMessage For="@(() => EditModel.Weight)" />
+                                    </div>
+
+                                    <div class="d-flex gap-2">
+                                        <button type="submit" class="btn btn-primary flex-fill">
+                                            @(IsEditing ? "Update" : "Add")
+                                        </button>
+                                        @if (IsEditing)
+                                        {
+                                            <button type="button" class="btn btn-outline-secondary" @onclick="CancelEdit">
+                                                Cancel
+                                            </button>
+                                        }
+                                    </div>
+                                </EditForm>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-lg-7">
+                        <div class="card elevate">
+                            <div class="card-header">Your Records</div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table align-middle">
+                                        <thead>
+                                            <tr>
+                                                <th>Date</th>
+                                                <th class="text-end">Weight (kg)</th>
+                                                <th class="text-end">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var r in Records)
+                                            {
+                                                <tr>
+                                                    <td>@r.Date.ToString("yyyy-MM-dd")</td>
+                                                    <td class="text-end">@r.Weight.ToString("0.0")</td>
+                                                    <td class="text-end">
+                                                        <div class="btn-group btn-group-sm" role="group">
+                                                            <button class="btn btn-outline-primary" title="Edit" @onclick="() => BeginEdit(r)">
+                                                                Edit
+                                                            </button>
+                                                            <button class="btn btn-danger" title="Delete" @onclick="() => DeleteAsync(r.Id)">
+                                                                Delete
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                @if (Records is null || Records.Count == 0)
+                                {
+                                    <div class="text-muted">No records yet. Add your first body weight above.</div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </Authorized>
+            <NotAuthorized>
+                <div class="alert alert-info">
+                    Please log in to view your body weight records.
+                </div>
+            </NotAuthorized>
+        </AuthorizeView>
+    }
+</div>
