@@ -1,0 +1,109 @@
+@page "/nutrition-target"
+@using Microsoft.AspNetCore.Components.Authorization
+@using FitnessWeightTracker.Client.Models
+@using FitnessWeightTracker.Client.Services
+@inject NutritionTargetsService TargetsService
+
+<h2 class="mb-4">Nutrition Target</h2>
+
+<AuthorizeView>
+    <Authorized Context="_">
+        @if (isLoading)
+        {
+            <div class="text-center my-5">
+                <div class="spinner-border text-primary" role="status" aria-hidden="true"></div>
+                <div class="mt-2 text-muted">Loading target…</div>
+            </div>
+        }
+        else
+        {
+            @if (!string.IsNullOrEmpty(message))
+            {
+                <div class="alert mb-3">@message</div>
+            }
+
+            @if (current is null && !isEditing)
+            {
+                <div class="card elevate">
+                    <div class="card-header">No target set</div>
+                    <div class="card-body">
+                        <button class="btn btn-primary" @onclick="BeginCreate">Create target</button>
+                    </div>
+                </div>
+            }
+            else if (isEditing)
+            {
+                <div class="card elevate">
+                    <div class="card-header">@((current is null) ? "Create Target" : "Edit Target")</div>
+                    <div class="card-body">
+                        <EditForm Model="@editModel" OnValidSubmit="SaveAsync">
+                            <DataAnnotationsValidator />
+                            <ValidationSummary class="mb-3" />
+
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="cal" class="form-label">Daily Calories</label>
+                                    <InputNumber id="cal" class="form-control" @bind-Value="editModel.DailyCalories" />
+                                    <ValidationMessage For="@(() => editModel.DailyCalories)" />
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="carb" class="form-label">Daily Carbohydrates (g)</label>
+                                    <InputNumber id="carb" class="form-control" @bind-Value="editModel.DailyCarbonohydrates" />
+                                    <ValidationMessage For="@(() => editModel.DailyCarbonohydrates)" />
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="prot" class="form-label">Daily Protein (g)</label>
+                                    <InputNumber id="prot" class="form-control" @bind-Value="editModel.DailyProtein" />
+                                    <ValidationMessage For="@(() => editModel.DailyProtein)" />
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="fat" class="form-label">Daily Fat (g)</label>
+                                    <InputNumber id="fat" class="form-control" @bind-Value="editModel.DailyFat" />
+                                    <ValidationMessage For="@(() => editModel.DailyFat)" />
+                                </div>
+                            </div>
+
+                            <div class="mt-3 d-flex gap-2">
+                                <button type="submit" class="btn btn-primary">Save</button>
+                                <button type="button" class="btn btn-outline-secondary" @onclick="CancelEdit">Cancel</button>
+                            </div>
+                        </EditForm>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="card elevate">
+                    <div class="card-header">Current Target</div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="text-muted small">Daily Calories</div>
+                                <div class="fs-5">@current.DailyCalories</div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="text-muted small">Daily Carbohydrates (g)</div>
+                                <div class="fs-5">@current.DailyCarbonohydrates</div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="text-muted small">Daily Protein (g)</div>
+                                <div class="fs-5">@current.DailyProtein</div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="text-muted small">Daily Fat (g)</div>
+                                <div class="fs-5">@current.DailyFat</div>
+                            </div>
+                        </div>
+                        <div class="mt-3 d-flex gap-2">
+                            <button class="btn btn-outline-primary" @onclick="BeginEdit">Edit</button>
+                            <button class="btn btn-danger" @onclick="DeleteAsync">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </Authorized>
+    <NotAuthorized>
+        <div class="alert alert-info">Please log in to manage your nutrition target.</div>
+    </NotAuthorized>
+</AuthorizeView>

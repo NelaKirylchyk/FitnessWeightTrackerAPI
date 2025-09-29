@@ -5,32 +5,26 @@ using FitnessWeightTracker.Client.ViewModels;
 
 namespace FitnessWeightTracker.Client.Pages;
 
-public partial class BodyWeightRecords : ComponentBase, IDisposable
+public partial class FoodRecords : ComponentBase, IDisposable
 {
-    private BodyWeightRecordsViewModel _vm = default!;
-
-    private List<BodyWeightRecord> Records => _vm.Records;
-    private BodyWeightRecordDTO EditModel => _vm.EditModel;
-    private bool IsEditing => _vm.IsEditing;
-    private int EditingId => _vm.EditingId;
-    private bool IsLoading => _vm.IsLoading;
-    private string? Message => _vm.Message;
+    private FoodRecordsViewModel _vm = default!;
+    private List<FoodItem> items => _vm.Items;
+    private List<FoodRecord> records => _vm.Records;
+    private FoodRecordDTO editModel => _vm.EditModel;
+    private bool isLoading => _vm.IsLoading;
+    private bool isEditing => _vm.IsEditing;
+    private bool ascending => _vm.Ascending;
+    private string? message => _vm.Message;
 
     [Inject] private AuthenticationStateProvider AuthStateProvider { get; set; } = default!;
 
     protected override async Task OnInitializedAsync()
     {
-        _vm = new BodyWeightRecordsViewModel(RecordsService, AuthStateProvider);
+        _vm = new FoodRecordsViewModel(RecordsService, ItemsService, AuthStateProvider);
         await _vm.InitializeAsync();
     }
 
-    private async Task LoadAsync()
-    {
-        await _vm.LoadAsync();
-        StateHasChanged();
-    }
-
-    private void BeginEdit(BodyWeightRecord r)
+    private void BeginEdit(FoodRecord r)
     {
         _vm.BeginEdit(r);
         StateHasChanged();
@@ -54,5 +48,14 @@ public partial class BodyWeightRecords : ComponentBase, IDisposable
         StateHasChanged();
     }
 
-    public void Dispose() => _vm?.Dispose();
+    private async void ToggleOrder(ChangeEventArgs _)
+    {
+        await _vm.ToggleOrderAsync();
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        _vm?.Dispose();
+    }
 }

@@ -1,0 +1,134 @@
+@page "/fooditems"
+@using Microsoft.AspNetCore.Components.Authorization
+@using FitnessWeightTracker.Client.Models
+@using FitnessWeightTracker.Client.Services
+@inject FoodItemsService ItemsService
+
+<h2 class="mb-4">Food Items</h2>
+
+<AuthorizeView>
+    <Authorized Context="_">
+        @if (isLoading)
+        {
+            <div class="text-center my-5">
+                <div class="spinner-border text-primary" role="status" aria-hidden="true"></div>
+                <div class="mt-2 text-muted">Loading items…</div>
+            </div>
+        }
+        else
+        {
+            @if (!string.IsNullOrEmpty(message))
+            {
+                <div class="alert mb-3">@message</div>
+            }
+
+            <div class="row g-4">
+                <div class="col-12 col-xl-5">
+                    <div class="card elevate">
+                        <div class="card-header">@(isEditing ? "Edit Item" : "Add Item")</div>
+                        <div class="card-body">
+                            <EditForm Model="@editModel" OnValidSubmit="SaveAsync">
+                                <DataAnnotationsValidator />
+                                <ValidationSummary class="mb-3" />
+
+                                <div class="mb-3">
+                                    <label for="name" class="form-label">Name</label>
+                                    <InputText id="name" class="form-control" @bind-Value="editModel.Name" />
+                                    <ValidationMessage For="@(() => editModel.Name)" />
+                                </div>
+
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label" for="cal">Calories</label>
+                                        <InputNumber id="cal" class="form-control" @bind-Value="editModel.Calories" />
+                                        <ValidationMessage For="@(() => editModel.Calories)" />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label" for="serv">Serving Size (g)</label>
+                                        <InputNumber id="serv" class="form-control" @bind-Value="editModel.ServingSize" />
+                                        <ValidationMessage For="@(() => editModel.ServingSize)" />
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label" for="carbs">Carbs (g)</label>
+                                        <InputNumber id="carbs" class="form-control" @bind-Value="editModel.Carbohydrates" />
+                                        <ValidationMessage For="@(() => editModel.Carbohydrates)" />
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label" for="protein">Protein (g)</label>
+                                        <InputNumber id="protein" class="form-control" @bind-Value="editModel.Protein" />
+                                        <ValidationMessage For="@(() => editModel.Protein)" />
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label" for="fat">Fat (g)</label>
+                                        <InputNumber id="fat" class="form-control" @bind-Value="editModel.Fat" />
+                                        <ValidationMessage For="@(() => editModel.Fat)" />
+                                    </div>
+                                </div>
+
+                                <div class="d-flex gap-2 mt-3">
+                                    <button type="submit" class="btn btn-primary flex-fill">
+                                        @(isEditing ? "Update" : "Add")
+                                    </button>
+                                    @if (isEditing)
+                                    {
+                                        <button type="button" class="btn btn-outline-secondary" @onclick="CancelEdit">Cancel</button>
+                                    }
+                                </div>
+                            </EditForm>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-xl-7">
+                    <div class="card elevate">
+                        <div class="card-header">Items</div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table align-middle">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th class="text-end">Calories</th>
+                                            <th class="text-end">Serving (g)</th>
+                                            <th class="text-end">Carbs</th>
+                                            <th class="text-end">Protein</th>
+                                            <th class="text-end">Fat</th>
+                                            <th class="text-end">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in items)
+                                        {
+                                            <tr>
+                                                <td>@item.Name</td>
+                                                <td class="text-end">@item.Calories</td>
+                                                <td class="text-end">@item.ServingSize</td>
+                                                <td class="text-end">@item.Carbohydrates</td>
+                                                <td class="text-end">@item.Protein</td>
+                                                <td class="text-end">@item.Fat</td>
+                                                <td class="text-end">
+                                                    <div class="btn-group btn-group-sm">
+                                                        <button class="btn btn-outline-primary" @onclick="() => BeginEdit(item)">Edit</button>
+                                                        <button class="btn btn-danger" @onclick="() => DeleteAsync(item.Id)">Delete</button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            @if (items.Count == 0)
+                            {
+                                <div class="text-muted">No food items yet. Add one on the left.</div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </Authorized>
+    <NotAuthorized>
+        <div class="alert alert-info">Please log in to manage food items.</div>
+    </NotAuthorized>
+</AuthorizeView>

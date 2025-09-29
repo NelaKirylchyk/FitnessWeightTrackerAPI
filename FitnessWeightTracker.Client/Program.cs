@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.AspNetCore.Components.Authorization;
 using FitnessWeightTracker.Client.Services.TokenStore;
 
+
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
@@ -24,18 +25,36 @@ builder.Services.AddScoped<AuthenticationStateProvider>(sp => sp.GetRequiredServ
 // Auth header handler
 builder.Services.AddScoped<AuthHeaderHandler>();
 
-// AuthService and feature service registrations remain as-is...
-builder.Services.AddHttpClient<AuthService>(client =>
+var apiBase = builder.Configuration["ApiBaseUrl"] ?? "https://localhost:7231/";
+
+// Named HttpClients
+var api = builder.Services.AddHttpClient("Api", c =>
 {
-    client.BaseAddress = new Uri("https://localhost:7231/");
+    c.BaseAddress = new Uri(apiBase);
 });
-builder.Services.AddHttpClient<BodyWeightRecordsService>(c =>
+
+var apiAuth = builder.Services.AddHttpClient("ApiAuth", c =>
 {
-    c.BaseAddress = new Uri("https://localhost:7231/");
+    c.BaseAddress = new Uri(apiBase);
 }).AddHttpMessageHandler<AuthHeaderHandler>();
 
-// ViewModel registration: transient + factory to ensure a fresh instance per component
-builder.Services.AddTransient<BodyWeightRecordsViewModel>();
-builder.Services.AddTransient<BodyWeightRecordsViewModelFactory>(sp => () => sp.GetRequiredService<BodyWeightRecordsViewModel>());
+api.AddTypedClient<AuthService>((http, sp) =>
+    new AuthService(http, sp.GetRequiredService<ITokenStore>(), sp.GetRequiredService<JwtAuthenticationStateProvider>()));
+
+apiAuth.AddTypedClient<BodyWeightRecordsService>((http, sp) =>
+    new BodyWeightRecordsService(http));
+
+apiAuth.AddTypedClient<BodyWeightTargetsService>((http, sp) =>
+    new BodyWeightTargetsService(http));
+
+apiAuth.AddTypedClient<FoodItemsService>((http, sp) =>
+    new FoodItemsService(http));
+
+apiAuth.AddTypedClient<FoodRecordsService>((http, sp) =>
+    new FoodRecordsService(http));
+
+apiAuth.AddTypedClient<NutritionTargetsService>((http, sp) =>
+    new NutritionTargetsService(http));
+
 
 await builder.Build().RunAsync();
