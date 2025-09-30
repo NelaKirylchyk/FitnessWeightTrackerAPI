@@ -1,9 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using FitnessWeightTrackerAPI.Models.CustomValidation;
+using Microsoft.EntityFrameworkCore;
 
 namespace FitnessWeightTrackerAPI.Models
 {
+    [Index(nameof(UserId), nameof(Date))]
     public class BodyWeightRecord
     {
         public int Id { get; set; }
