@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.AspNetCore.Components.Authorization;
 using FitnessWeightTracker.Client.Services.TokenStore;
-
+using Radzen;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -56,5 +56,10 @@ apiAuth.AddTypedClient<FoodRecordsService>((http, sp) =>
 apiAuth.AddTypedClient<NutritionTargetsService>((http, sp) =>
     new NutritionTargetsService(http));
 
+// Radzen services
+builder.Services.AddScoped<DialogService>();
+builder.Services.AddScoped<NotificationService>();
+builder.Services.AddScoped<TooltipService>();
+builder.Services.AddScoped<ContextMenuService>();
 
 await builder.Build().RunAsync();

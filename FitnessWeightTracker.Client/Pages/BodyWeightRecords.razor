@@ -1,6 +1,10 @@
 @page "/bodyweight"
+@using FitnessWeightTracker.Client.Models
 @using Microsoft.AspNetCore.Components.Authorization
 @using FitnessWeightTracker.Client.Services
+@using Radzen
+@using Radzen.Blazor
+@using System.Linq
 @inject BodyWeightRecordsService RecordsService
 
 <div class="container py-4">
@@ -21,6 +25,21 @@
                 {
                     <div class="alert mb-3">@Message</div>
                 }
+
+                <div class="card elevate mb-4">
+                    <div class="card-header">Weight Trend</div>
+                    <div class="card-body">
+                        <RadzenChart Style="height: 320px;">
+                            <RadzenLineSeries
+                                Data="@(Records is not null ? Records.OrderBy(r => r.Date) : Enumerable.Empty<BodyWeightRecord>())"
+                                CategoryProperty="Date"
+                                ValueProperty="Weight"
+                                Title="Weight (kg)" />
+                            <RadzenCategoryAxis FormatString="{0:yyyy-MM-dd}" />
+                            <RadzenValueAxis />
+                        </RadzenChart>
+                    </div>
+                </div>
 
                 <div class="row g-4">
                     <div class="col-12 col-lg-5">
